@@ -1,131 +1,146 @@
 
-
-# 添加 CLI 命令参考手册页面
+# 添加「技能使用帮助」独立页面
 
 ## 概述
 
-新建一个独立的「命令手册」页面（`/cli-guide`），以精美的卡片 + 手风琴布局，完整收录 Claude Code、Codex CLI、Gemini CLI 三大工具的内置命令说明。所有描述使用中文，命令语法保留英文原文，确保与官方文档一致。
+新建一个独立的「技能使用帮助」页面（`/skills-guide`），完整收录 Claude Code、Codex CLI、Gemini CLI 三大工具的 Agent Skills 系统详细使用说明与配置手册。页面采用 Tab 切换 + 手风琴分组 + 搜索过滤的交互模式，与现有 `/cli-guide` 页面风格保持一致。
 
-## 页面结构
+## 内容规划（基于官方文档）
 
-页面顶部使用三个 Tab 切换工具，每个 Tab 内按功能分组展示命令：
+### Claude Code Skills
+
+分为以下模块：
+
+1. **概述** - Skills 是什么、核心优势（复用性、渐进式披露、组合能力）
+2. **快速开始** - 创建第一个 Skill 的完整步骤（创建目录、编写 SKILL.md、测试调用）
+3. **存放位置** - 企业级 / 个人级 / 项目级 / 插件级四种作用域及路径说明
+4. **SKILL.md 结构** - Frontmatter 字段参考表（name、description、disable-model-invocation、allowed-tools、context、agent、model、hooks 等）
+5. **内容类型** - 参考内容 vs 任务内容的区别与编写方式
+6. **调用控制** - 用户调用 vs 模型调用的控制方式（disable-model-invocation、user-invocable）
+7. **参数传递** - $ARGUMENTS、$ARGUMENTS[N]、$N 占位符用法
+8. **高级模式** - 动态上下文注入（!`command`）、子代理执行（context: fork）、权限控制
+9. **预置技能** - 官方预置的 Agent Skills（PowerPoint/Excel/Word/PDF）
+10. **配置模板** - 完整可用的 SKILL.md 模板（含下载功能）
+
+### Codex CLI Skills
+
+1. **概述** - Skills 概念、渐进式披露机制、与开放标准的关系
+2. **快速开始** - 使用 $skill-creator 创建技能、手动创建
+3. **存放位置** - REPO / USER / ADMIN / SYSTEM 四级作用域及路径
+4. **安装技能** - $skill-installer 使用方法
+5. **启用与禁用** - config.toml 中 [[skills.config]] 配置
+6. **调用方式** - 显式调用（/skills、$skill-name）与隐式调用
+7. **可选元数据** - agents/openai.yaml 配置（UI 元数据、策略、工具依赖）
+8. **最佳实践** - 单一职责、指令优先于脚本、明确输入输出
+9. **配置模板** - 完整 SKILL.md + openai.yaml 模板
+
+### Gemini CLI Skills
+
+1. **概述** - Agent Skills 开放标准、与 GEMINI.md 的区别、核心优势
+2. **技能发现层级** - 工作区(.gemini/skills/)、用户(~/.gemini/skills/)、扩展三级
+3. **会话内管理** - /skills list、/skills link、/skills disable、/skills enable、/skills reload
+4. **终端管理** - gemini skills list、gemini skills link、gemini skills install、gemini skills uninstall
+5. **工作机制** - 发现 → 激活 → 确认 → 注入 → 执行的完整流程
+6. **创建自定义技能** - SKILL.md 格式与目录结构
+7. **配置模板** - 完整 SKILL.md 模板
+
+## 页面交互设计
 
 ```text
-[Claude Code]  [Codex CLI]  [Gemini CLI]
-+-------------------------------------------------+
-| 搜索命令...                          [全部展开]  |
-+-------------------------------------------------+
-| > 会话管理（5 条命令）                            |
-|   /help    显示帮助信息和所有可用命令              |
-|   /clear   清除当前会话历史                       |
-|   /compact 压缩会话以节省上下文窗口               |
-|   ...                                            |
-| > 配置与调试（4 条命令）                          |
-|   /config  查看或修改配置设置                     |
-|   /cost    显示当前会话的 Token 用量和费用         |
-|   /doctor  检查 Claude Code 安装健康状态          |
-|   ...                                            |
-| > 工具与扩展（3 条命令）                          |
-|   /mcp     管理 MCP 服务器                       |
-|   /agents  管理自定义子代理                       |
-|   ...                                            |
-+-------------------------------------------------+
++----------------------------------------------------------+
+| 技能使用帮助                                              |
+| 三大 CLI 工具 Agent Skills 详细使用说明与配置手册          |
++----------------------------------------------------------+
+| [Claude Code]  [Codex CLI]  [Gemini CLI]                  |
++----------------------------------------------------------+
+| 搜索技能说明...           [全部展开] [全部折叠]            |
+| 显示 X / 共 Y 条                      [官方文档 ↗]       |
++----------------------------------------------------------+
+| > 概述（1 条）                                            |
+|   Skills 是什么、核心优势、渐进式披露机制                  |
+| > 快速开始（3 条）                                        |
+|   创建目录 → 编写 SKILL.md → 测试调用                     |
+| > 存放位置（4 条）                                        |
+|   企业级 / 个人 / 项目 / 插件 四种作用域                   |
+| > 配置参考（8 条）                                        |
+|   Frontmatter 字段详解：name, description, context...     |
+| > 配置模板 ⬇                                             |
+|   完整 SKILL.md 模板 [下载模板]                           |
++----------------------------------------------------------+
 ```
 
-每条命令以行内展示：`命令名`（加代码高亮）+ 中文描述 + 可选的用法示例（折叠展开）。
+每个条目包含：
+- 标题（代码高亮显示路径/命令/字段名）
+- 中文详细描述
+- 可选的用法示例（代码块展示）
+- 可选的配置模板（支持下载按钮）
 
-## 三大工具命令清单（基于官方文档）
+### 配置模板下载
 
-### Claude Code - 斜杠命令
+每个工具提供可下载的配置模板文件：
+- Claude Code: `SKILL.md` 模板（含完整 Frontmatter + 指令示例）
+- Codex CLI: `SKILL.md` + `agents/openai.yaml` 模板
+- Gemini CLI: `SKILL.md` 模板
 
-分组：
-- **会话管理**：`/help`, `/clear`, `/compact [instructions]`, `/init`, `/review`
-- **配置与调试**：`/config`, `/cost`, `/doctor`, `/model`, `/allowed-tools`, `/hooks`
-- **账户管理**：`/login`, `/logout`
-- **工具与扩展**：`/mcp`, `/agents`, `/add-dir`
-- **其他**：`/bug`, `/status`
-- **快捷键**：Ctrl+C, Ctrl+D, Ctrl+L, Esc Esc, Shift+Tab, \+Enter
-- **CLI 启动命令**：`claude`, `claude "query"`, `claude -p`, `claude --continue`, `claude --resume`
-
-### Codex CLI - 命令与选项
-
-分组：
-- **启动与运行**：`codex`, `codex "query"`, `codex -q`, `codex --restore`
-- **模型与提供者**：`--model/-m`, `--provider/-p`
-- **审批模式**：`--approval-mode/-a`（suggest/auto-edit/full-auto）, `--full-auto`, `--auto-edit`
-- **沙箱控制**：`--sandbox`（docker/none/workspace-write）
-- **交互命令**：`/mode`, `/model`, `/approval`, `/status`, `/init`, `/new`, `/history`
-- **输入与输出**：`--image/-i`, `--quiet/-q`
-- **配置**：`~/.codex/config.toml` 主要字段
-
-### Gemini CLI - 斜杠命令
-
-分组：
-- **会话管理**：`/help`, `/clear`, `/compress`, `/copy`, `/quit`
-- **对话存档**：`/chat save`, `/chat resume`, `/chat list`, `/restore`
-- **记忆与上下文**：`/memory show`, `/memory refresh`, `/memory add`
-- **工具与扩展**：`/tools`, `/mcp`, `/extensions`, `/skills`
-- **设置与主题**：`/settings`, `/theme`, `/auth`, `/editor`, `/terminal-setup`, `/ide`
-- **统计与调试**：`/stats`, `/bug`, `/about`
-- **@ 命令**：`@file`, `@directory`
-- **! 命令**：`!shell-command`
-- **CLI 启动选项**：`gemini`, `--model`, `--checkpointing`, `-p`
+下载功能使用 `file-saver` 库（已安装），生成 `.md` / `.yaml` 文件。
 
 ## 文件变更清单
 
 | 文件 | 操作 | 说明 |
 |------|------|------|
-| `src/pages/CliGuide.tsx` | 新建 | 命令手册页面主组件（含全部命令数据定义 + 搜索 + 分组展示） |
-| `src/App.tsx` | 修改 | 添加 `/cli-guide` 路由 |
-| `src/components/AppSidebar.tsx` | 修改 | 添加「命令手册」导航项（使用 `Terminal` 图标） |
-| `src/i18n/locales/zh.ts` | 修改 | 添加 `nav.cliGuide` 等翻译 |
+| `src/pages/SkillsGuide.tsx` | 新建 | 技能使用帮助页面（含全部数据定义 + 搜索 + 分组 + 模板下载） |
+| `src/App.tsx` | 修改 | 添加 `/skills-guide` 路由 |
+| `src/components/AppSidebar.tsx` | 修改 | 添加「技能帮助」导航项（使用 `GraduationCap` 图标） |
+| `src/i18n/locales/zh.ts` | 修改 | 添加 `nav.skillsGuide` 及帮助页相关翻译 |
 | `src/i18n/locales/en.ts` | 修改 | 添加对应英文翻译 |
 
-## 技术实现要点
+### 无新增依赖
 
-### 命令数据结构
+全部使用已有组件（Tabs、Accordion、Badge、Input、Button、Card、Tooltip）和已安装库（file-saver）。
+
+## 技术实现
+
+### 数据结构
 
 ```typescript
-interface CliCommand {
-  command: string;        // 命令名，如 "/help"
-  description: string;    // 中文描述
-  usage?: string;         // 用法示例（可选）
-  subcommands?: { command: string; description: string }[]; // 子命令
+interface SkillGuideItem {
+  title: string;           // 条目标题
+  description: string;     // 中文详细描述
+  code?: string;           // 代码示例
+  badge?: "path" | "command" | "field" | "config" | "template";
+  table?: { headers: string[]; rows: string[][] };  // 表格数据
 }
 
-interface CommandGroup {
-  category: string;       // 分组名，如 "会话管理"
+interface SkillGuideGroup {
+  category: string;        // 分组名
   icon: LucideIcon;
-  commands: CliCommand[];
+  items: SkillGuideItem[];
 }
 
-interface CliTool {
-  id: string;             // "claude" | "codex" | "gemini"
+interface SkillGuideTool {
+  id: string;
   name: string;
-  icon: string;           // emoji 或 lucide 图标
-  officialUrl: string;    // 官方文档链接
-  groups: CommandGroup[];
+  officialUrl: string;
+  groups: SkillGuideGroup[];
+  templates: {             // 可下载模板
+    filename: string;
+    content: string;
+    label: string;
+  }[];
 }
 ```
 
-### UI 组件使用
-
-- **Tabs** 切换三大工具
-- **Accordion** 按分组折叠/展开命令列表
-- **Input** 搜索过滤命令
-- **Badge** 标注命令类型（斜杠命令/CLI 参数/快捷键）
-- **Tooltip** 显示完整用法示例
-- **Card** 包裹每条命令
-
 ### 搜索功能
 
-- 实时过滤：输入关键词后只显示匹配的命令（匹配命令名或描述）
-- 自动展开包含匹配结果的分组
+- 实时过滤：匹配标题或描述中的关键词
+- 自动展开匹配分组
+- 显示匹配/总数统计
 
 ### 视觉设计
 
-- 命令名使用 `font-mono` 等宽字体 + 代码背景色高亮
-- 分组标题左侧带图标，右侧显示命令数量 Badge
-- 每个工具 Tab 顶部显示官方文档链接
+- 与 `/cli-guide` 页面风格完全一致
+- 代码块使用 `font-mono` + 背景色高亮
+- Badge 区分条目类型（路径/命令/字段/配置/模板）
+- 表格使用 Table 组件展示结构化参考数据
+- 模板下载按钮使用 Download 图标
 - 支持暗色主题
-

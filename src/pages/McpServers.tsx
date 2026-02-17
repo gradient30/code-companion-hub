@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Server, Loader2, Wifi, Terminal, Radio, Activity, CheckCircle2, XCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { HelpDialog } from "@/components/HelpDialog";
 import type { Tables } from "@/integrations/supabase/types";
 
 type McpServer = Tables<"mcp_servers">;
@@ -166,6 +168,7 @@ function McpServerForm({
 
 export default function McpServers() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingServer, setEditingServer] = useState<McpServer | null>(null);
@@ -277,9 +280,18 @@ export default function McpServers() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">MCP Server 管理</h1>
-          <p className="text-sm text-muted-foreground">统一管理 MCP 服务器配置</p>
+        <div className="flex items-center gap-2">
+          <div>
+            <h1 className="text-2xl font-bold">{t("mcp.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("mcp.subtitle")}</p>
+          </div>
+          <HelpDialog sections={[
+            { title: t("helpMcp.what"), content: t("helpMcp.whatDesc") },
+            { title: t("helpMcp.transport"), content: t("helpMcp.transportDesc") },
+            { title: t("helpMcp.templates"), content: t("helpMcp.templatesDesc") },
+            { title: t("helpMcp.env"), content: t("helpMcp.envDesc") },
+            { title: t("helpMcp.bindings"), content: t("helpMcp.bindingsDesc") },
+          ]} />
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>

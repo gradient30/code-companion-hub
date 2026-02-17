@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, BookOpen, Loader2, GitBranch, RefreshCw, Download, CheckCircle2, FolderGit2, Pencil } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { HelpDialog } from "@/components/HelpDialog";
 import type { Tables } from "@/integrations/supabase/types";
 
 type SkillsRepo = Tables<"skills_repos">;
@@ -192,9 +193,16 @@ export default function Skills() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{t("skills.title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("skills.subtitle")}</p>
+        <div className="flex items-center gap-2">
+          <div>
+            <h1 className="text-2xl font-bold">{t("skills.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("skills.subtitle")}</p>
+          </div>
+          <HelpDialog sections={[
+            { title: t("helpSkills.what"), content: t("helpSkills.whatDesc") },
+            { title: t("helpSkills.repos"), content: t("helpSkills.reposDesc") },
+            { title: t("helpSkills.scan"), content: t("helpSkills.scanDesc") },
+          ]} />
         </div>
       </div>
 

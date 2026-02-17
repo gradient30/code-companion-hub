@@ -11,6 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Copy, Zap, Loader2, Activity, CheckCircle2, XCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { HelpDialog } from "@/components/HelpDialog";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Provider = Tables<"providers">;
@@ -91,6 +93,7 @@ function ProviderForm({
 
 export default function Providers() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProvider, setEditingProvider] = useState<Provider | null>(null);
@@ -229,9 +232,17 @@ export default function Providers() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Provider 管理</h1>
-          <p className="text-sm text-muted-foreground">管理 AI CLI 的 API 配置</p>
+        <div className="flex items-center gap-2">
+          <div>
+            <h1 className="text-2xl font-bold">{t("providers.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("providers.subtitle")}</p>
+          </div>
+          <HelpDialog sections={[
+            { title: t("helpProviders.what"), content: t("helpProviders.whatDesc") },
+            { title: t("helpProviders.types"), content: t("helpProviders.typesDesc") },
+            { title: t("helpProviders.howTo"), content: t("helpProviders.howToDesc") },
+            { title: t("helpProviders.test"), content: t("helpProviders.testDesc") },
+          ]} />
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>

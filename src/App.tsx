@@ -12,6 +12,7 @@ import McpServers from "./pages/McpServers";
 import Skills from "./pages/Skills";
 import Prompts from "./pages/Prompts";
 import Export from "./pages/Export";
+import ImportPage from "./pages/Import";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route path="/import" element={<ProtectedRoute><ImportPage /></ProtectedRoute>} />
             <Route
               path="/*"
               element={

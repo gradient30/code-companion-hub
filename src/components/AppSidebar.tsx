@@ -1,6 +1,9 @@
 import { Zap, Server, BookOpen, FileText, Download, LogOut, User } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import {
   Sidebar,
   SidebarContent,
@@ -16,15 +19,16 @@ import {
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { title: "Providers", url: "/providers", icon: Zap },
-  { title: "MCP Servers", url: "/mcp", icon: Server },
-  { title: "Skills", url: "/skills", icon: BookOpen },
-  { title: "Prompts", url: "/prompts", icon: FileText },
-  { title: "导出", url: "/export", icon: Download },
+  { titleKey: "nav.providers", url: "/providers", icon: Zap },
+  { titleKey: "nav.mcpServers", url: "/mcp", icon: Server },
+  { titleKey: "nav.skills", url: "/skills", icon: BookOpen },
+  { titleKey: "nav.prompts", url: "/prompts", icon: FileText },
+  { titleKey: "nav.export", url: "/export", icon: Download },
 ];
 
 export function AppSidebar() {
   const { user, signOut } = useAuth();
+  const { t } = useTranslation();
 
   return (
     <Sidebar>
@@ -35,18 +39,18 @@ export function AppSidebar() {
           </div>
           <div>
             <h2 className="text-sm font-bold text-sidebar-foreground">CC-Switch</h2>
-            <p className="text-xs text-sidebar-foreground/60">配置管理平台</p>
+            <p className="text-xs text-sidebar-foreground/60">{t("nav.platform")}</p>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>管理</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("nav.management")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.titleKey}>
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
@@ -55,7 +59,7 @@ export function AppSidebar() {
                       activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
                     >
                       <item.icon className="mr-2 h-4 w-4" />
-                      <span>{item.title}</span>
+                      <span>{t(item.titleKey)}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -65,7 +69,11 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-4 space-y-2">
+        <div className="flex items-center justify-center gap-1">
+          <ThemeToggle />
+          <LanguageToggle />
+        </div>
         <div className="flex items-center gap-2 rounded-lg bg-sidebar-accent p-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
             <User className="h-4 w-4 text-primary-foreground" />

@@ -327,11 +327,11 @@ export default function McpServers() {
             <p className="text-sm text-muted-foreground">{t("mcp.subtitle")}</p>
           </div>
           <HelpDialog sections={[
-            { title: t("helpMcp.what"), content: t("helpMcp.whatDesc") },
-            { title: t("helpMcp.transport"), content: t("helpMcp.transportDesc") },
-            { title: t("helpMcp.templates"), content: t("helpMcp.templatesDesc") },
-            { title: t("helpMcp.env"), content: t("helpMcp.envDesc") },
-            { title: t("helpMcp.bindings"), content: t("helpMcp.bindingsDesc") },
+            { title: t("helpMcp.what"), content: t("helpMcp.whatDesc"), tip: t("helpMcp.whatTip") },
+            { title: t("helpMcp.transport"), content: t("helpMcp.transportDesc"), tip: t("helpMcp.transportTip") },
+            { title: t("helpMcp.templates"), content: t("helpMcp.templatesDesc"), tip: t("helpMcp.templatesTip") },
+            { title: t("helpMcp.env"), content: t("helpMcp.envDesc"), tip: t("helpMcp.envTip") },
+            { title: t("helpMcp.bindings"), content: t("helpMcp.bindingsDesc"), tip: t("helpMcp.bindingsTip") },
           ]} />
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

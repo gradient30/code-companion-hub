@@ -266,10 +266,10 @@ export default function Providers() {
             <p className="text-sm text-muted-foreground">{t("providers.subtitle")}</p>
           </div>
           <HelpDialog sections={[
-            { title: t("helpProviders.what"), content: t("helpProviders.whatDesc") },
-            { title: t("helpProviders.types"), content: t("helpProviders.typesDesc") },
+            { title: t("helpProviders.what"), content: t("helpProviders.whatDesc"), tip: t("helpProviders.whatTip") },
+            { title: t("helpProviders.types"), content: t("helpProviders.typesDesc"), tip: t("helpProviders.typesTip") },
             { title: t("helpProviders.howTo"), content: t("helpProviders.howToDesc") },
-            { title: t("helpProviders.test"), content: t("helpProviders.testDesc") },
+            { title: t("helpProviders.test"), content: t("helpProviders.testDesc"), tip: t("helpProviders.testTip") },
           ]} />
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

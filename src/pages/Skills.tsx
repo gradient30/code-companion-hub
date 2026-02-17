@@ -387,9 +387,10 @@ export default function Skills() {
             <p className="text-sm text-muted-foreground">{t("skills.subtitle")}</p>
           </div>
           <HelpDialog sections={[
-            { title: t("helpSkills.what"), content: t("helpSkills.whatDesc") },
-            { title: t("helpSkills.repos"), content: t("helpSkills.reposDesc") },
-            { title: t("helpSkills.scan"), content: t("helpSkills.scanDesc") },
+            { title: t("helpSkills.what"), content: t("helpSkills.whatDesc"), tip: t("helpSkills.whatTip") },
+            { title: t("helpSkills.repos"), content: t("helpSkills.reposDesc"), tip: t("helpSkills.reposTip") },
+            { title: t("helpSkills.scan"), content: t("helpSkills.scanDesc"), tip: t("helpSkills.scanTip") },
+            { title: t("helpSkills.views"), content: t("helpSkills.viewsDesc") },
           ]} />
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Zap, Server, BookOpen, FileText, Download, LogOut, User } from "lucide-react";
+import { Zap, Server, BookOpen, FileText, Download, LogOut, User, Terminal } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -24,6 +24,7 @@ const navItems = [
   { titleKey: "nav.skills", url: "/skills", icon: BookOpen },
   { titleKey: "nav.prompts", url: "/prompts", icon: FileText },
   { titleKey: "nav.export", url: "/export", icon: Download },
+  { titleKey: "nav.cliGuide", url: "/cli-guide", icon: Terminal },
 ];
 
 export function AppSidebar() {

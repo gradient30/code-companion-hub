@@ -14,6 +14,7 @@ import Prompts from "./pages/Prompts";
 import Export from "./pages/Export";
 import ImportPage from "./pages/Import";
 import NotFound from "./pages/NotFound";
+import CliGuide from "./pages/CliGuide";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
                       <Route path="/skills" element={<Skills />} />
                       <Route path="/prompts" element={<Prompts />} />
                       <Route path="/export" element={<Export />} />
+                      <Route path="/cli-guide" element={<CliGuide />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>

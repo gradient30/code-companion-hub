@@ -25,6 +25,21 @@ const PROVIDER_PRESETS = [
 
 const APP_TYPES = ["claude", "codex", "gemini", "opencode"] as const;
 
+const OFFICIAL_BASE_URLS: Record<string, string> = {
+  claude: "https://api.anthropic.com",
+  codex: "https://api.openai.com/v1",
+  gemini: "https://generativelanguage.googleapis.com",
+  opencode: "https://api.openai.com/v1",
+};
+
+const PACKYCODE_BASE_URL = "https://api.packycode.com";
+
+function getAutoBaseUrl(providerType: string, appType: string): string {
+  if (providerType === "official") return OFFICIAL_BASE_URLS[appType] || "";
+  if (providerType === "packycode") return PACKYCODE_BASE_URL;
+  return "";
+}
+
 function ProviderForm({
   initial,
   onSave,
@@ -34,6 +49,7 @@ function ProviderForm({
   onSave: (data: Partial<Provider>) => void;
   saving: boolean;
 }) {
+  const isEdit = !!initial?.id;
   const [form, setForm] = useState({
     name: initial?.name || "",
     provider_type: initial?.provider_type || "custom",
@@ -43,6 +59,18 @@ function ProviderForm({
     enabled: initial?.enabled ?? true,
   });
 
+  const isAutoUrl = form.provider_type === "official" || form.provider_type === "packycode";
+
+  const handleProviderTypeChange = (v: string) => {
+    const newUrl = v === "custom" ? "" : getAutoBaseUrl(v, form.app_type);
+    setForm({ ...form, provider_type: v, base_url: newUrl });
+  };
+
+  const handleAppTypeChange = (v: string) => {
+    const newUrl = isAutoUrl ? getAutoBaseUrl(form.provider_type, v) : form.base_url;
+    setForm({ ...form, app_type: v, base_url: newUrl });
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -51,7 +79,7 @@ function ProviderForm({
       </div>
       <div className="space-y-2">
         <Label>类型</Label>
-        <Select value={form.provider_type} onValueChange={(v) => setForm({ ...form, provider_type: v })}>
+        <Select value={form.provider_type} onValueChange={handleProviderTypeChange}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="official">官方登录</SelectItem>
@@ -62,7 +90,7 @@ function ProviderForm({
       </div>
       <div className="space-y-2">
         <Label>应用</Label>
-        <Select value={form.app_type} onValueChange={(v) => setForm({ ...form, app_type: v })}>
+        <Select value={form.app_type} onValueChange={handleAppTypeChange}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
             {APP_TYPES.map((t) => (
@@ -76,8 +104,8 @@ function ProviderForm({
         <Input type="password" value={form.api_key} onChange={(e) => setForm({ ...form, api_key: e.target.value })} placeholder="sk-..." maxLength={500} />
       </div>
       <div className="space-y-2">
-        <Label>Base URL</Label>
-        <Input value={form.base_url} onChange={(e) => setForm({ ...form, base_url: e.target.value })} placeholder="https://api.example.com" maxLength={500} />
+        <Label>Base URL {isAutoUrl && <span className="text-xs text-muted-foreground ml-1">(自动填充)</span>}</Label>
+        <Input value={form.base_url} onChange={(e) => setForm({ ...form, base_url: e.target.value })} placeholder="https://api.example.com" maxLength={500} disabled={isAutoUrl} className={isAutoUrl ? "opacity-70" : ""} />
       </div>
       <div className="flex items-center justify-between">
         <Label>启用</Label>

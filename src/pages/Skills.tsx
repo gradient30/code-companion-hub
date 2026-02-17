@@ -10,8 +10,12 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Trash2, BookOpen, Loader2, GitBranch, RefreshCw, Download, CheckCircle2, FolderGit2, Pencil } from "lucide-react";
+import { Plus, Trash2, BookOpen, Loader2, GitBranch, RefreshCw, Pencil, FolderGit2, LayoutGrid, List, Search, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { HelpDialog } from "@/components/HelpDialog";
 import type { Tables } from "@/integrations/supabase/types";
@@ -19,10 +23,105 @@ import type { Tables } from "@/integrations/supabase/types";
 type SkillsRepo = Tables<"skills_repos">;
 type Skill = Tables<"skills">;
 
-const DEFAULT_REPOS = [
-  { owner: "anthropics", repo: "claude-code", branch: "main", subdirectory: "skills" },
-  { owner: "anthropics", repo: "courses", branch: "master", subdirectory: "" },
-];
+const PRESET_REPOS = {
+  top10: [
+    { owner: "modelcontextprotocol", repo: "servers", desc: "MCP 官方服务器集合" },
+    { owner: "anthropics", repo: "courses", desc: "Anthropic 官方课程" },
+    { owner: "punkpeye", repo: "awesome-mcp-servers", desc: "MCP 服务器合集" },
+    { owner: "anthropics", repo: "anthropic-cookbook", desc: "Anthropic 实战示例" },
+    { owner: "openai", repo: "openai-cookbook", desc: "OpenAI 实战示例" },
+    { owner: "microsoft", repo: "semantic-kernel", desc: "微软 AI 编排框架" },
+    { owner: "langchain-ai", repo: "langchain", desc: "LangChain 框架" },
+    { owner: "run-llama", repo: "llama_index", desc: "LlamaIndex 框架" },
+    { owner: "lobehub", repo: "lobe-chat", desc: "Lobe Chat 开源项目" },
+    { owner: "langgenius", repo: "dify", desc: "Dify AI 平台" },
+  ],
+  dev: [
+    { owner: "anthropics", repo: "anthropic-cookbook", desc: "Anthropic 实战示例" },
+    { owner: "openai", repo: "openai-cookbook", desc: "OpenAI 实战示例" },
+    { owner: "modelcontextprotocol", repo: "servers", desc: "MCP 官方服务器" },
+    { owner: "microsoft", repo: "semantic-kernel", desc: "AI 编排框架" },
+    { owner: "langchain-ai", repo: "langchain", desc: "LangChain" },
+    { owner: "run-llama", repo: "llama_index", desc: "LlamaIndex" },
+    { owner: "sigoden", repo: "aichat", desc: "AI Chat CLI" },
+    { owner: "continuedev", repo: "continue", desc: "Continue IDE 插件" },
+    { owner: "cline", repo: "cline", desc: "Cline AI 编码助手" },
+    { owner: "sourcegraph", repo: "cody", desc: "Cody AI 代码助手" },
+  ],
+  design: [
+    { owner: "penpot", repo: "penpot", desc: "开源设计平台" },
+    { owner: "excalidraw", repo: "excalidraw", desc: "手绘风格白板" },
+    { owner: "tldraw", repo: "tldraw", desc: "在线白板引擎" },
+    { owner: "theatre-js", repo: "theatre", desc: "动画编辑器" },
+    { owner: "rive-app", repo: "rive-wasm", desc: "Rive 动画运行时" },
+    { owner: "imgly", repo: "cesdk-web-examples", desc: "创意设计 SDK" },
+    { owner: "BuilderIO", repo: "figma-html", desc: "Figma → HTML" },
+    { owner: "tokens-studio", repo: "figma-plugin", desc: "设计 Token 插件" },
+    { owner: "jina-ai", repo: "reader", desc: "网页内容提取" },
+    { owner: "markdoc", repo: "markdoc", desc: "文档标记语言" },
+  ],
+  office: [
+    { owner: "lobehub", repo: "lobe-chat", desc: "Lobe Chat" },
+    { owner: "ChatGPTNextWeb", repo: "ChatGPT-Next-Web", desc: "ChatGPT Next Web" },
+    { owner: "langgenius", repo: "dify", desc: "Dify AI 平台" },
+    { owner: "n8n-io", repo: "n8n", desc: "工作流自动化" },
+    { owner: "FlowiseAI", repo: "Flowise", desc: "可视化 AI 流" },
+    { owner: "makeplane", repo: "plane", desc: "项目管理" },
+    { owner: "AppFlowy-IO", repo: "AppFlowy", desc: "开源 Notion 替代" },
+    { owner: "twentyhq", repo: "twenty", desc: "开源 CRM" },
+    { owner: "hoppscotch", repo: "hoppscotch", desc: "API 调试工具" },
+    { owner: "nocodb", repo: "nocodb", desc: "开源 Airtable 替代" },
+  ],
+  qa: [
+    { owner: "microsoft", repo: "playwright", desc: "端到端测试框架" },
+    { owner: "puppeteer", repo: "puppeteer", desc: "浏览器自动化" },
+    { owner: "cypress-io", repo: "cypress", desc: "前端测试框架" },
+    { owner: "SeleniumHQ", repo: "selenium", desc: "浏览器自动化" },
+    { owner: "grafana", repo: "k6", desc: "负载测试工具" },
+    { owner: "locustio", repo: "locust", desc: "性能测试框架" },
+    { owner: "postmanlabs", repo: "httpbin", desc: "HTTP 测试服务" },
+    { owner: "mockoon", repo: "mockoon", desc: "Mock API 工具" },
+    { owner: "stoplightio", repo: "prism", desc: "API Mock 服务" },
+    { owner: "karatelabs", repo: "karate", desc: "API 测试框架" },
+  ],
+  docs: [
+    { owner: "jina-ai", repo: "reader", desc: "网页内容提取" },
+    { owner: "Unstructured-IO", repo: "unstructured", desc: "非结构化数据处理" },
+    { owner: "DS4SD", repo: "docling", desc: "文档解析引擎" },
+    { owner: "VikParuchuri", repo: "marker", desc: "PDF → Markdown" },
+    { owner: "opendatalab", repo: "MinerU", desc: "文档数据挖掘" },
+    { owner: "Stirling-Tools", repo: "Stirling-PDF", desc: "PDF 处理工具" },
+    { owner: "gotenberg", repo: "gotenberg", desc: "文档转换 API" },
+    { owner: "jgm", repo: "pandoc", desc: "通用文档转换" },
+    { owner: "azimutt", repo: "azimutt", desc: "数据库可视化" },
+    { owner: "mermaid-js", repo: "mermaid", desc: "图表生成引擎" },
+  ],
+};
+
+const PRESET_TABS = [
+  { key: "top10", label: "🏆 总榜 Top 10" },
+  { key: "dev", label: "💻 研发类" },
+  { key: "design", label: "🎨 设计类" },
+  { key: "office", label: "📋 办公类" },
+  { key: "qa", label: "🧪 QA 测试" },
+  { key: "docs", label: "📄 文档处理" },
+] as const;
+
+// Skill 中文说明 Tooltip
+const SKILL_TIPS: Record<string, string> = {
+  "mcp-fetch": "为 AI 提供网络请求能力，可以访问外部 API 和网页内容",
+  "mcp-filesystem": "让 AI 能够读写本地文件系统中的文件",
+  "mcp-memory": "为 AI 提供持久化记忆存储，跨对话保持上下文",
+  "playwright": "浏览器自动化测试工具，支持截图、表单操作等",
+  "context7": "上下文增强服务，提升 AI 对项目代码的理解能力",
+  "github": "GitHub API 集成，支持仓库管理、Issue、PR 等操作",
+  "puppeteer": "Chrome 浏览器自动化，网页爬取、截图、PDF 生成",
+  "brave-search": "Brave 搜索引擎集成，为 AI 提供实时网络搜索",
+  "sequential-thinking": "增强 AI 的逐步思考和推理能力",
+  "sqlite": "SQLite 数据库操作，支持本地数据库查询和管理",
+  "postgres": "PostgreSQL 数据库连接与查询",
+  "slack": "Slack 消息发送和频道管理集成",
+};
 
 function RepoForm({
   initial,
@@ -45,23 +144,23 @@ function RepoForm({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>{t("skills.repoOwner")}</Label>
+        <Label>{t("skills.repoOwner")} <span className="text-destructive">*</span></Label>
         <Input value={form.owner} onChange={(e) => setForm({ ...form, owner: e.target.value })} placeholder="anthropics" maxLength={100} />
       </div>
       <div className="space-y-2">
-        <Label>{t("skills.repoName")}</Label>
+        <Label>{t("skills.repoName")} <span className="text-destructive">*</span></Label>
         <Input value={form.repo} onChange={(e) => setForm({ ...form, repo: e.target.value })} placeholder="claude-code" maxLength={100} />
       </div>
       <div className="space-y-2">
-        <Label>{t("skills.branch")}</Label>
+        <Label>{t("skills.branch")} <span className="text-xs text-muted-foreground ml-1">(选填)</span></Label>
         <Input value={form.branch} onChange={(e) => setForm({ ...form, branch: e.target.value })} placeholder="main" maxLength={50} />
       </div>
       <div className="space-y-2">
-        <Label>{t("skills.subdirectory")}</Label>
+        <Label>{t("skills.subdirectory")} <span className="text-xs text-muted-foreground ml-1">(选填)</span></Label>
         <Input value={form.subdirectory} onChange={(e) => setForm({ ...form, subdirectory: e.target.value })} placeholder="skills" maxLength={200} />
       </div>
       <div className="flex items-center justify-between">
-        <Label>{t("skills.isDefault")}</Label>
+        <Label>{t("skills.isDefault")} <span className="text-xs text-muted-foreground ml-1">(选填)</span></Label>
         <Switch checked={form.is_default} onCheckedChange={(v) => setForm({ ...form, is_default: v })} />
       </div>
       <Button className="w-full" onClick={() => onSave(form)} disabled={saving || !form.owner.trim() || !form.repo.trim()}>
@@ -79,6 +178,12 @@ export default function Skills() {
   const [repoDialogOpen, setRepoDialogOpen] = useState(false);
   const [editingRepo, setEditingRepo] = useState<SkillsRepo | null>(null);
   const [scanningRepoId, setScanningRepoId] = useState<string | null>(null);
+
+  // Skills view & filter state
+  const [viewMode, setViewMode] = useState<string>(() => localStorage.getItem("skills-view") || "card");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterRepo, setFilterRepo] = useState<string>("all");
 
   const { data: repos = [], isLoading: reposLoading } = useQuery({
     queryKey: ["skills_repos"],
@@ -142,7 +247,12 @@ export default function Skills() {
       const basePath = repo.subdirectory ? `${repo.subdirectory}` : "";
       const apiUrl = `https://api.github.com/repos/${repo.owner}/${repo.repo}/contents/${basePath}?ref=${repo.branch}`;
       const resp = await fetch(apiUrl);
-      if (!resp.ok) throw new Error(`GitHub API error: ${resp.status}`);
+      if (!resp.ok) {
+        if (resp.status === 404) {
+          throw new Error("仓库路径不存在，请检查子目录配置");
+        }
+        throw new Error(`GitHub API error: ${resp.status}`);
+      }
       const items = await resp.json();
 
       const skillDirs = Array.isArray(items) ? items.filter((i: any) => i.type === "dir") : [];
@@ -151,7 +261,6 @@ export default function Skills() {
       for (const dir of skillDirs) {
         const existing = skills.find((s) => s.name === dir.name && s.repo_id === repo.id);
         if (!existing) {
-          // Try to fetch README for description
           let description = "";
           try {
             const readmeResp = await fetch(`https://api.github.com/repos/${repo.owner}/${repo.repo}/contents/${dir.path}/README.md?ref=${repo.branch}`);
@@ -182,9 +291,24 @@ export default function Skills() {
     }
   };
 
-  const addDefaultRepo = (preset: typeof DEFAULT_REPOS[0]) => {
-    createRepoMutation.mutate({ ...preset, is_default: true });
+  const addPresetRepo = (preset: { owner: string; repo: string }) => {
+    createRepoMutation.mutate({ owner: preset.owner, repo: preset.repo, branch: "main", subdirectory: "", is_default: false });
   };
+
+  const handleViewChange = (v: string) => {
+    if (v) {
+      setViewMode(v);
+      localStorage.setItem("skills-view", v);
+    }
+  };
+
+  // Filter skills
+  const filteredSkills = skills.filter((skill) => {
+    const matchSearch = !searchQuery || skill.name.toLowerCase().includes(searchQuery.toLowerCase()) || (skill.description || "").toLowerCase().includes(searchQuery.toLowerCase());
+    const matchStatus = filterStatus === "all" || (filterStatus === "installed" ? skill.installed : !skill.installed);
+    const matchRepo = filterRepo === "all" || skill.repo_id === filterRepo;
+    return matchSearch && matchStatus && matchRepo;
+  });
 
   if (reposLoading || skillsLoading) {
     return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -218,15 +342,39 @@ export default function Skills() {
               <DialogTrigger asChild>
                 <Button size="sm"><Plus className="mr-1 h-4 w-4" />{t("skills.addRepo")}</Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
                 <DialogHeader><DialogTitle>{t("skills.addRepo")}</DialogTitle></DialogHeader>
-                <div className="mb-4 flex flex-wrap gap-2">
-                  {DEFAULT_REPOS.map((p) => (
-                    <Button key={`${p.owner}/${p.repo}`} variant="outline" size="sm" onClick={() => addDefaultRepo(p)}>
-                      {p.owner}/{p.repo}
-                    </Button>
+                {/* Preset repos by category */}
+                <Tabs defaultValue="top10" className="mb-4">
+                  <TabsList className="flex-wrap h-auto gap-1">
+                    {PRESET_TABS.map((tab) => (
+                      <TabsTrigger key={tab.key} value={tab.key} className="text-xs">{tab.label}</TabsTrigger>
+                    ))}
+                  </TabsList>
+                  {PRESET_TABS.map((tab) => (
+                    <TabsContent key={tab.key} value={tab.key} className="mt-2">
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {PRESET_REPOS[tab.key as keyof typeof PRESET_REPOS].map((p) => (
+                          <TooltipProvider key={`${p.owner}/${p.repo}`} delayDuration={200}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="justify-start text-xs h-8 font-mono"
+                                  onClick={() => addPresetRepo(p)}
+                                >
+                                  {p.owner}/{p.repo}
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent><p>{p.desc}</p></TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ))}
+                      </div>
+                    </TabsContent>
                   ))}
-                </div>
+                </Tabs>
                 <RepoForm onSave={(data) => createRepoMutation.mutate(data)} saving={createRepoMutation.isPending} />
               </DialogContent>
             </Dialog>
@@ -297,18 +445,111 @@ export default function Skills() {
         </TabsContent>
 
         <TabsContent value="skills" className="mt-4 space-y-3">
-          {skills.length === 0 ? (
+          {/* Toolbar: search, filters, view toggle */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative flex-1 min-w-[180px]">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="搜索技能名称或描述..."
+                className="pl-9 h-9"
+              />
+            </div>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-[120px] h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部状态</SelectItem>
+                <SelectItem value="installed">已安装</SelectItem>
+                <SelectItem value="uninstalled">未安装</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filterRepo} onValueChange={setFilterRepo}>
+              <SelectTrigger className="w-[160px] h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部仓库</SelectItem>
+                {repos.map((r) => (
+                  <SelectItem key={r.id} value={r.id}>{r.owner}/{r.repo}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <ToggleGroup type="single" value={viewMode} onValueChange={handleViewChange} size="sm">
+              <ToggleGroupItem value="card" aria-label="卡片视图"><LayoutGrid className="h-4 w-4" /></ToggleGroupItem>
+              <ToggleGroupItem value="list" aria-label="列表视图"><List className="h-4 w-4" /></ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+
+          {filteredSkills.length === 0 ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-16">
                 <BookOpen className="mb-4 h-12 w-12 text-muted-foreground/40" />
-                <p className="text-lg font-medium text-muted-foreground">{t("skills.emptySkills")}</p>
-                <p className="text-sm text-muted-foreground/60">{t("skills.emptySkillsHint")}</p>
+                <p className="text-lg font-medium text-muted-foreground">{skills.length === 0 ? t("skills.emptySkills") : "无匹配结果"}</p>
+                <p className="text-sm text-muted-foreground/60">{skills.length === 0 ? t("skills.emptySkillsHint") : "尝试调整筛选条件"}</p>
               </CardContent>
             </Card>
+          ) : viewMode === "list" ? (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>名称</TableHead>
+                    <TableHead>来源仓库</TableHead>
+                    <TableHead>描述</TableHead>
+                    <TableHead className="w-[80px]">状态</TableHead>
+                    <TableHead className="w-[60px]">操作</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredSkills.map((skill) => {
+                    const repo = repos.find((r) => r.id === skill.repo_id);
+                    const tip = SKILL_TIPS[skill.name];
+                    return (
+                      <TableRow key={skill.id} className={!skill.installed ? "opacity-60" : ""}>
+                        <TableCell className="font-medium text-sm">{skill.name}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{repo ? `${repo.owner}/${repo.repo}` : "-"}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground max-w-[200px]">
+                          {tip ? (
+                            <TooltipProvider delayDuration={200}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="inline-flex items-center gap-1 cursor-help">
+                                    <span className="truncate">{skill.description || tip}</span>
+                                    <Info className="h-3 w-3 shrink-0 text-muted-foreground/60" />
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs"><p>{tip}</p></TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          ) : (
+                            <span className="truncate">{skill.description || "-"}</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={skill.installed ? "default" : "secondary"} className="text-[10px]">
+                            {skill.installed ? "已安装" : "未安装"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Switch
+                            checked={skill.installed}
+                            onCheckedChange={(v) => toggleInstalled.mutate({ id: skill.id, installed: v })}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {skills.map((skill) => {
+              {filteredSkills.map((skill) => {
                 const repo = repos.find((r) => r.id === skill.repo_id);
+                const tip = SKILL_TIPS[skill.name];
                 return (
                   <Card key={skill.id} className={`transition-opacity ${!skill.installed ? "opacity-60" : ""}`}>
                     <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
@@ -321,11 +562,23 @@ export default function Skills() {
                         onCheckedChange={(v) => toggleInstalled.mutate({ id: skill.id, installed: v })}
                       />
                     </CardHeader>
-                    {skill.description && (
-                      <CardContent>
+                    <CardContent>
+                      {tip ? (
+                        <TooltipProvider delayDuration={200}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <p className="text-xs text-muted-foreground line-clamp-2 cursor-help inline-flex items-center gap-1">
+                                {skill.description || tip}
+                                <Info className="h-3 w-3 shrink-0 text-muted-foreground/60" />
+                              </p>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs"><p>{tip}</p></TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : skill.description ? (
                         <p className="text-xs text-muted-foreground line-clamp-2">{skill.description}</p>
-                      </CardContent>
-                    )}
+                      ) : null}
+                    </CardContent>
                   </Card>
                 );
               })}

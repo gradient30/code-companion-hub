@@ -16,6 +16,7 @@ import ImportPage from "./pages/Import";
 import NotFound from "./pages/NotFound";
 import CliGuide from "./pages/CliGuide";
 import SkillsGuide from "./pages/SkillsGuide";
+import SetupGuide from "./pages/SetupGuide";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
                       <Route path="/export" element={<Export />} />
                       <Route path="/cli-guide" element={<CliGuide />} />
                       <Route path="/skills-guide" element={<SkillsGuide />} />
+                      <Route path="/setup-guide" element={<SetupGuide />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>

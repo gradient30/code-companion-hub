@@ -24,17 +24,40 @@ type SkillsRepo = Tables<"skills_repos">;
 type Skill = Tables<"skills">;
 
 const PRESET_REPOS = {
-  top10: [
-    { owner: "modelcontextprotocol", repo: "servers", desc: "MCP 官方服务器集合" },
+  claude: [
+    { owner: "anthropics", repo: "anthropic-cookbook", desc: "Anthropic 官方实战示例" },
     { owner: "anthropics", repo: "courses", desc: "Anthropic 官方课程" },
+    { owner: "modelcontextprotocol", repo: "servers", desc: "MCP 官方服务器集合" },
     { owner: "punkpeye", repo: "awesome-mcp-servers", desc: "MCP 服务器合集" },
-    { owner: "anthropics", repo: "anthropic-cookbook", desc: "Anthropic 实战示例" },
-    { owner: "openai", repo: "openai-cookbook", desc: "OpenAI 实战示例" },
-    { owner: "microsoft", repo: "semantic-kernel", desc: "微软 AI 编排框架" },
+    { owner: "cline", repo: "cline", desc: "Cline AI 编码助手" },
+  ],
+  codex: [
+    { owner: "openai", repo: "openai-cookbook", desc: "OpenAI 官方实战示例" },
+    { owner: "openai", repo: "codex", desc: "OpenAI Codex CLI" },
+    { owner: "langchain-ai", repo: "langchain", desc: "LangChain AI 框架" },
+    { owner: "run-llama", repo: "llama_index", desc: "LlamaIndex 数据框架" },
+    { owner: "continuedev", repo: "continue", desc: "Continue IDE AI 插件" },
+  ],
+  gemini: [
+    { owner: "google-gemini", repo: "cookbook", desc: "Gemini 官方实战示例" },
+    { owner: "google-gemini", repo: "gemma-cookbook", desc: "Gemma 模型示例" },
     { owner: "langchain-ai", repo: "langchain", desc: "LangChain 框架" },
+    { owner: "microsoft", repo: "semantic-kernel", desc: "微软 AI 编排框架" },
     { owner: "run-llama", repo: "llama_index", desc: "LlamaIndex 框架" },
+  ],
+  opencode: [
+    { owner: "sigoden", repo: "aichat", desc: "全能 AI CLI 工具" },
+    { owner: "sourcegraph", repo: "cody", desc: "Cody AI 代码助手" },
+    { owner: "continuedev", repo: "continue", desc: "Continue IDE 插件" },
+    { owner: "modelcontextprotocol", repo: "servers", desc: "MCP 官方服务器" },
+    { owner: "cline", repo: "cline", desc: "Cline AI 助手" },
+  ],
+  hackathon: [
+    { owner: "langgenius", repo: "dify", desc: "Dify AI 应用平台" },
     { owner: "lobehub", repo: "lobe-chat", desc: "Lobe Chat 开源项目" },
-    { owner: "langgenius", repo: "dify", desc: "Dify AI 平台" },
+    { owner: "FlowiseAI", repo: "Flowise", desc: "可视化 AI 编排" },
+    { owner: "n8n-io", repo: "n8n", desc: "工作流自动化" },
+    { owner: "ChatGPTNextWeb", repo: "ChatGPT-Next-Web", desc: "ChatGPT Web 前端" },
   ],
   dev: [
     { owner: "anthropics", repo: "anthropic-cookbook", desc: "Anthropic 实战示例" },
@@ -99,7 +122,11 @@ const PRESET_REPOS = {
 };
 
 const PRESET_TABS = [
-  { key: "top10", label: "🏆 总榜 Top 10" },
+  { key: "claude", label: "🤖 Claude" },
+  { key: "codex", label: "🧠 Codex" },
+  { key: "gemini", label: "💎 Gemini" },
+  { key: "opencode", label: "⚡ OpenCode" },
+  { key: "hackathon", label: "🏆 黑客松" },
   { key: "dev", label: "💻 研发类" },
   { key: "design", label: "🎨 设计类" },
   { key: "office", label: "📋 办公类" },

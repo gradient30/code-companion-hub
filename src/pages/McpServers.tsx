@@ -12,6 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Plus, Pencil, Trash2, Server, Loader2, Wifi, Terminal, Radio, Activity, CheckCircle2, XCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { HelpDialog } from "@/components/HelpDialog";
@@ -25,25 +27,75 @@ const TRANSPORT_TYPES = [
   { value: "sse", label: "SSE", icon: Radio },
 ] as const;
 
-const APP_OPTIONS = ["claude", "codex", "gemini", "opencode"] as const;
+const APP_OPTIONS = ["claude", "codex", "gemini", "opencode", "hackathon"] as const;
 
-const MCP_TEMPLATES = [
-  // Anthropic 官方
-  { name: "mcp-fetch", transport_type: "stdio", command: "npx", args: ["-y", "@anthropics/mcp-fetch"] },
-  { name: "mcp-filesystem", transport_type: "stdio", command: "npx", args: ["-y", "@anthropics/mcp-filesystem", "/path"] },
-  { name: "mcp-memory", transport_type: "stdio", command: "npx", args: ["-y", "@anthropics/mcp-memory"] },
-  // 常用热门 MCP (GitHub Star 排名靠前)
-  { name: "playwright", transport_type: "stdio", command: "npx", args: ["@playwright/mcp@latest"] },
-  { name: "context7", transport_type: "stdio", command: "npx", args: ["-y", "@upstash/context7-mcp@latest"] },
-  { name: "sequential-thinking", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-sequential-thinking"] },
-  { name: "github", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-github"] },
-  { name: "puppeteer", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-puppeteer"] },
-  { name: "brave-search", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-brave-search"] },
-  { name: "everything", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-everything"] },
-  { name: "sqlite", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-sqlite", "--db-path", "/path/to/db"] },
-  { name: "postgres", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost/mydb"] },
-  { name: "slack", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-slack"] },
-];
+type McpTemplate = { name: string; transport_type: string; command: string; args: string[]; desc: string };
+
+const MCP_PRESETS: Record<string, { label: string; items: McpTemplate[] }> = {
+  claude: {
+    label: "🤖 Claude (Anthropic)",
+    items: [
+      { name: "playwright", transport_type: "stdio", command: "npx", args: ["@playwright/mcp@latest"], desc: "浏览器自动化与测试" },
+      { name: "context7", transport_type: "stdio", command: "npx", args: ["-y", "@upstash/context7-mcp@latest"], desc: "上下文增强，实时获取最新文档" },
+      { name: "sequential-thinking", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-sequential-thinking"], desc: "增强逐步推理能力" },
+      { name: "mcp-fetch", transport_type: "stdio", command: "npx", args: ["-y", "@anthropics/mcp-fetch"], desc: "网络请求与网页抓取" },
+      { name: "mcp-memory", transport_type: "stdio", command: "npx", args: ["-y", "@anthropics/mcp-memory"], desc: "跨对话持久化记忆" },
+    ],
+  },
+  codex: {
+    label: "🧠 Codex (OpenAI)",
+    items: [
+      { name: "playwright", transport_type: "stdio", command: "npx", args: ["@playwright/mcp@latest"], desc: "浏览器自动化与测试" },
+      { name: "context7", transport_type: "stdio", command: "npx", args: ["-y", "@upstash/context7-mcp@latest"], desc: "上下文增强，实时文档查询" },
+      { name: "github", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-github"], desc: "GitHub 仓库/Issue/PR 操作" },
+      { name: "mcp-fetch", transport_type: "stdio", command: "npx", args: ["-y", "@anthropics/mcp-fetch"], desc: "HTTP 请求与数据获取" },
+      { name: "brave-search", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-brave-search"], desc: "Brave 实时网络搜索" },
+    ],
+  },
+  gemini: {
+    label: "💎 Gemini (Google)",
+    items: [
+      { name: "playwright", transport_type: "stdio", command: "npx", args: ["@playwright/mcp@latest"], desc: "浏览器自动化与端到端测试" },
+      { name: "context7", transport_type: "stdio", command: "npx", args: ["-y", "@upstash/context7-mcp@latest"], desc: "上下文增强服务" },
+      { name: "mcp-fetch", transport_type: "stdio", command: "npx", args: ["-y", "@anthropics/mcp-fetch"], desc: "外部 API 调用与网页抓取" },
+      { name: "sequential-thinking", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-sequential-thinking"], desc: "增强逐步推理能力" },
+      { name: "github", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-github"], desc: "GitHub 集成管理" },
+    ],
+  },
+  opencode: {
+    label: "⚡ OpenCode",
+    items: [
+      { name: "playwright", transport_type: "stdio", command: "npx", args: ["@playwright/mcp@latest"], desc: "浏览器自动化测试" },
+      { name: "context7", transport_type: "stdio", command: "npx", args: ["-y", "@upstash/context7-mcp@latest"], desc: "上下文增强，获取最新文档" },
+      { name: "github", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-github"], desc: "GitHub 仓库与代码管理" },
+      { name: "mcp-filesystem", transport_type: "stdio", command: "npx", args: ["-y", "@anthropics/mcp-filesystem", "/path"], desc: "本地文件系统读写" },
+      { name: "mcp-memory", transport_type: "stdio", command: "npx", args: ["-y", "@anthropics/mcp-memory"], desc: "跨对话持久记忆" },
+    ],
+  },
+  hackathon: {
+    label: "🏆 黑客松",
+    items: [
+      { name: "playwright", transport_type: "stdio", command: "npx", args: ["@playwright/mcp@latest"], desc: "快速浏览器自动化原型" },
+      { name: "context7", transport_type: "stdio", command: "npx", args: ["-y", "@upstash/context7-mcp@latest"], desc: "实时文档增强" },
+      { name: "brave-search", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-brave-search"], desc: "实时网络搜索集成" },
+      { name: "sequential-thinking", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-sequential-thinking"], desc: "增强推理与复杂任务拆解" },
+      { name: "mcp-fetch", transport_type: "stdio", command: "npx", args: ["-y", "@anthropics/mcp-fetch"], desc: "快速调用外部 API" },
+    ],
+  },
+  more: {
+    label: "📦 更多常用",
+    items: [
+      { name: "mcp-filesystem", transport_type: "stdio", command: "npx", args: ["-y", "@anthropics/mcp-filesystem", "/path"], desc: "本地文件系统读写" },
+      { name: "puppeteer", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-puppeteer"], desc: "Chrome 自动化与爬取" },
+      { name: "everything", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-everything"], desc: "MCP 全功能测试服务" },
+      { name: "sqlite", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-sqlite", "--db-path", "/path/to/db"], desc: "SQLite 数据库操作" },
+      { name: "postgres", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost/mydb"], desc: "PostgreSQL 数据库连接" },
+      { name: "slack", transport_type: "stdio", command: "npx", args: ["-y", "@modelcontextprotocol/server-slack"], desc: "Slack 消息与频道管理" },
+    ],
+  },
+};
+
+const MCP_PRESET_KEYS = Object.keys(MCP_PRESETS);
 
 interface EnvEntry { key: string; value: string }
 
@@ -271,7 +323,7 @@ export default function McpServers() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["mcp_servers"] }),
   });
 
-  const applyTemplate = (tpl: typeof MCP_TEMPLATES[0]) => {
+  const applyTemplate = (tpl: McpTemplate) => {
     createMutation.mutate({
       name: tpl.name,
       transport_type: tpl.transport_type,
@@ -309,15 +361,33 @@ export default function McpServers() {
           <DialogTrigger asChild>
             <Button><Plus className="mr-2 h-4 w-4" />新增 MCP Server</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
             <DialogHeader><DialogTitle>新增 MCP Server</DialogTitle></DialogHeader>
-            <div className="mb-4 flex flex-wrap gap-2">
-              {MCP_TEMPLATES.map((tpl) => (
-                <Button key={tpl.name} variant="outline" size="sm" onClick={() => applyTemplate(tpl)}>
-                  {tpl.name}
-                </Button>
+            <Tabs defaultValue="claude" className="mb-4">
+              <TabsList className="flex-wrap h-auto gap-1">
+                {MCP_PRESET_KEYS.map((key) => (
+                  <TabsTrigger key={key} value={key} className="text-xs">{MCP_PRESETS[key].label}</TabsTrigger>
+                ))}
+              </TabsList>
+              {MCP_PRESET_KEYS.map((key) => (
+                <TabsContent key={key} value={key} className="mt-2">
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {MCP_PRESETS[key].items.map((tpl) => (
+                      <TooltipProvider key={tpl.name} delayDuration={200}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="outline" size="sm" className="justify-start text-xs" onClick={() => applyTemplate(tpl)}>
+                              {tpl.name}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom"><p className="text-xs max-w-[200px]">{tpl.desc}</p></TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ))}
+                  </div>
+                </TabsContent>
               ))}
-            </div>
+            </Tabs>
             <McpServerForm onSave={(data) => createMutation.mutate(data)} saving={createMutation.isPending} />
           </DialogContent>
         </Dialog>

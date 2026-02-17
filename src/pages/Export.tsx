@@ -263,12 +263,12 @@ export default function Export() {
           <p className="text-sm text-muted-foreground">{t("export.subtitle")}</p>
         </div>
         <HelpDialog sections={[
-          { title: t("helpExport.what"), content: t("helpExport.whatDesc") },
+          { title: t("helpExport.what"), content: t("helpExport.whatDesc"), tip: t("helpExport.whatTip") },
           { title: t("helpExport.full"), content: t("helpExport.fullDesc") },
-          { title: t("helpExport.module"), content: t("helpExport.moduleDesc") },
-          { title: t("helpExport.app"), content: t("helpExport.appDesc") },
-          { title: t("helpExport.import"), content: t("helpExport.importDesc") },
-          { title: t("helpExport.deepLink"), content: t("helpExport.deepLinkDesc") },
+          { title: t("helpExport.module"), content: t("helpExport.moduleDesc"), tip: t("helpExport.moduleTip") },
+          { title: t("helpExport.app"), content: t("helpExport.appDesc"), tip: t("helpExport.appTip") },
+          { title: t("helpExport.import"), content: t("helpExport.importDesc"), tip: t("helpExport.importTip") },
+          { title: t("helpExport.deepLink"), content: t("helpExport.deepLinkDesc"), tip: t("helpExport.deepLinkTip") },
         ]} />
       </div>
 

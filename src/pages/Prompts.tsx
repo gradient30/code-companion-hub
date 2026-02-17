@@ -252,10 +252,11 @@ export default function Prompts() {
           <p className="text-sm text-muted-foreground">{t("prompts.subtitle")}</p>
         </div>
         <HelpDialog sections={[
-          { title: t("helpPrompts.what"), content: t("helpPrompts.whatDesc") },
-          { title: t("helpPrompts.target"), content: t("helpPrompts.targetDesc") },
-          { title: t("helpPrompts.editor"), content: t("helpPrompts.editorDesc") },
-          { title: t("helpPrompts.active"), content: t("helpPrompts.activeDesc") },
+          { title: t("helpPrompts.what"), content: t("helpPrompts.whatDesc"), tip: t("helpPrompts.whatTip") },
+          { title: t("helpPrompts.target"), content: t("helpPrompts.targetDesc"), tip: t("helpPrompts.targetTip") },
+          { title: t("helpPrompts.editor"), content: t("helpPrompts.editorDesc"), tip: t("helpPrompts.editorTip") },
+          { title: t("helpPrompts.active"), content: t("helpPrompts.activeDesc"), tip: t("helpPrompts.activeTip") },
+          { title: t("helpPrompts.optimizer"), content: t("helpPrompts.optimizerDesc"), tip: t("helpPrompts.optimizerTip") },
         ]} />
       </div>
 

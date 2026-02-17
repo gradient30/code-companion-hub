@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import CliGuide from "./pages/CliGuide";
 import SkillsGuide from "./pages/SkillsGuide";
 import SetupGuide from "./pages/SetupGuide";
+import AiGlossary from "./pages/AiGlossary";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const App = () => (
                       <Route path="/cli-guide" element={<CliGuide />} />
                       <Route path="/skills-guide" element={<SkillsGuide />} />
                       <Route path="/setup-guide" element={<SetupGuide />} />
+                      <Route path="/ai-glossary" element={<AiGlossary />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </AppLayout>

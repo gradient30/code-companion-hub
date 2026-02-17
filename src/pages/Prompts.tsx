@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, FileText, Loader2, Eye, Code, CheckCircle2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { HelpDialog } from "@/components/HelpDialog";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Prompt = Tables<"prompts">;
@@ -98,6 +100,7 @@ function PromptForm({
 
 export default function Prompts() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
@@ -154,9 +157,17 @@ export default function Prompts() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Prompts 管理</h1>
-          <p className="text-sm text-muted-foreground">管理系统提示词预设</p>
+        <div className="flex items-center gap-2">
+          <div>
+            <h1 className="text-2xl font-bold">{t("prompts.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("prompts.subtitle")}</p>
+          </div>
+          <HelpDialog sections={[
+            { title: t("helpPrompts.what"), content: t("helpPrompts.whatDesc") },
+            { title: t("helpPrompts.target"), content: t("helpPrompts.targetDesc") },
+            { title: t("helpPrompts.editor"), content: t("helpPrompts.editorDesc") },
+            { title: t("helpPrompts.active"), content: t("helpPrompts.activeDesc") },
+          ]} />
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>

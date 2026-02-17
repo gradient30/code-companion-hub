@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { Download, Upload, Link2, Package, FileJson, Copy, Loader2 } from "lucide-react";
+import { HelpDialog } from "@/components/HelpDialog";
 import { useTranslation } from "react-i18next";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
@@ -256,9 +257,19 @@ export default function Export() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{t("export.title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("export.subtitle")}</p>
+      <div className="flex items-center gap-2">
+        <div>
+          <h1 className="text-2xl font-bold">{t("export.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("export.subtitle")}</p>
+        </div>
+        <HelpDialog sections={[
+          { title: t("helpExport.what"), content: t("helpExport.whatDesc") },
+          { title: t("helpExport.full"), content: t("helpExport.fullDesc") },
+          { title: t("helpExport.module"), content: t("helpExport.moduleDesc") },
+          { title: t("helpExport.app"), content: t("helpExport.appDesc") },
+          { title: t("helpExport.import"), content: t("helpExport.importDesc") },
+          { title: t("helpExport.deepLink"), content: t("helpExport.deepLinkDesc") },
+        ]} />
       </div>
 
       <Tabs defaultValue="export">

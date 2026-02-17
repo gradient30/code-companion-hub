@@ -24,6 +24,12 @@ type SkillsRepo = Tables<"skills_repos">;
 type Skill = Tables<"skills">;
 
 const PRESET_REPOS = {
+  skills: [
+    { owner: "ComposioHQ", repo: "awesome-claude-skills", branch: "master", desc: "Claude Skills 大合集（943 个技能）" },
+    { owner: "anthropics", repo: "skills", desc: "Anthropic 官方技能仓库（17 个技能）" },
+    { owner: "JimLiu", repo: "baoyu-skills", desc: "宝玉技能包（16 个技能）" },
+    { owner: "cexll", repo: "myclaude", branch: "master", desc: "个人 Claude 技能集（13 个技能）" },
+  ],
   dev: [
     { owner: "anthropics", repo: "anthropic-cookbook", desc: "Anthropic 实战示例" },
     { owner: "openai", repo: "openai-cookbook", desc: "OpenAI 实战示例" },
@@ -87,6 +93,7 @@ const PRESET_REPOS = {
 };
 
 const PRESET_TABS = [
+  { key: "skills", label: "🎯 Skills 仓库" },
   { key: "dev", label: "💻 研发类" },
   { key: "design", label: "🎨 设计类" },
   { key: "office", label: "📋 办公类" },
@@ -278,8 +285,8 @@ export default function Skills() {
     }
   };
 
-  const addPresetRepo = (preset: { owner: string; repo: string }) => {
-    createRepoMutation.mutate({ owner: preset.owner, repo: preset.repo, branch: "main", subdirectory: "", is_default: false });
+  const addPresetRepo = (preset: { owner: string; repo: string; branch?: string }) => {
+    createRepoMutation.mutate({ owner: preset.owner, repo: preset.repo, branch: preset.branch || "main", subdirectory: "", is_default: false });
   };
 
   const handleViewChange = (v: string) => {
@@ -332,7 +339,7 @@ export default function Skills() {
               <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
                 <DialogHeader><DialogTitle>{t("skills.addRepo")}</DialogTitle></DialogHeader>
                 {/* Preset repos by category */}
-                <Tabs defaultValue="dev" className="mb-4">
+                <Tabs defaultValue="skills" className="mb-4">
                   <TabsList className="flex-wrap h-auto gap-1">
                     {PRESET_TABS.map((tab) => (
                       <TabsTrigger key={tab.key} value={tab.key} className="text-xs">{tab.label}</TabsTrigger>

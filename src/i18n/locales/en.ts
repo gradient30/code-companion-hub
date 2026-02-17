@@ -120,7 +120,7 @@ export default {
   },
   prompts: {
     title: "Prompts Management",
-    subtitle: "Manage system prompt presets",
+    subtitle: "Manage system prompt presets & AI optimization",
     addPrompt: "Add Prompt",
     editPrompt: "Edit Prompt",
     empty: "No Prompts",
@@ -136,6 +136,8 @@ export default {
     createSuccess: "Created successfully",
     updateSuccess: "Updated successfully",
     deleteSuccess: "Deleted successfully",
+    managementTab: "Prompts Management",
+    optimizerTab: "Prompt Optimizer",
   },
   export: {
     title: "Export Config",

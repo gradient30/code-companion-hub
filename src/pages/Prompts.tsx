@@ -13,9 +13,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, FileText, Loader2, Eye, Code, CheckCircle2 } from "lucide-react";
+import { Plus, Pencil, Trash2, FileText, Loader2, Eye, Code, CheckCircle2, Sparkles, ListChecks } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { HelpDialog } from "@/components/HelpDialog";
+import PromptOptimizer from "@/components/PromptOptimizer";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Prompt = Tables<"prompts">;
@@ -98,7 +99,7 @@ function PromptForm({
   );
 }
 
-export default function Prompts() {
+function PromptsManagement() {
   const { user } = useAuth();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -155,20 +156,8 @@ export default function Prompts() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div>
-            <h1 className="text-2xl font-bold">{t("prompts.title")}</h1>
-            <p className="text-sm text-muted-foreground">{t("prompts.subtitle")}</p>
-          </div>
-          <HelpDialog sections={[
-            { title: t("helpPrompts.what"), content: t("helpPrompts.whatDesc") },
-            { title: t("helpPrompts.target"), content: t("helpPrompts.targetDesc") },
-            { title: t("helpPrompts.editor"), content: t("helpPrompts.editorDesc") },
-            { title: t("helpPrompts.active"), content: t("helpPrompts.activeDesc") },
-          ]} />
-        </div>
+    <div className="space-y-4">
+      <div className="flex justify-end">
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button><Plus className="mr-2 h-4 w-4" />新增 Prompt</Button>
@@ -247,6 +236,47 @@ export default function Prompts() {
           )}
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+export default function Prompts() {
+  const { t, i18n } = useTranslation();
+  const isZh = i18n.language === "zh";
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-2">
+        <div>
+          <h1 className="text-2xl font-bold">{t("prompts.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("prompts.subtitle")}</p>
+        </div>
+        <HelpDialog sections={[
+          { title: t("helpPrompts.what"), content: t("helpPrompts.whatDesc") },
+          { title: t("helpPrompts.target"), content: t("helpPrompts.targetDesc") },
+          { title: t("helpPrompts.editor"), content: t("helpPrompts.editorDesc") },
+          { title: t("helpPrompts.active"), content: t("helpPrompts.activeDesc") },
+        ]} />
+      </div>
+
+      <Tabs defaultValue="management">
+        <TabsList>
+          <TabsTrigger value="management" className="gap-1.5">
+            <ListChecks className="h-3.5 w-3.5" />
+            {isZh ? "Prompts 管理" : "Prompts Management"}
+          </TabsTrigger>
+          <TabsTrigger value="optimizer" className="gap-1.5">
+            <Sparkles className="h-3.5 w-3.5" />
+            {isZh ? "提示词优化器" : "Prompt Optimizer"}
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="management">
+          <PromptsManagement />
+        </TabsContent>
+        <TabsContent value="optimizer">
+          <PromptOptimizer />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

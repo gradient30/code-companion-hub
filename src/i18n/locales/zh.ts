@@ -120,7 +120,7 @@ export default {
   },
   prompts: {
     title: "Prompts 管理",
-    subtitle: "管理系统提示词预设",
+    subtitle: "管理系统提示词预设与 AI 优化",
     addPrompt: "新增 Prompt",
     editPrompt: "编辑 Prompt",
     empty: "暂无 Prompt",
@@ -136,6 +136,8 @@ export default {
     createSuccess: "创建成功",
     updateSuccess: "更新成功",
     deleteSuccess: "删除成功",
+    managementTab: "Prompts 管理",
+    optimizerTab: "提示词优化器",
   },
   export: {
     title: "导出配置",

@@ -86,6 +86,48 @@ export type Database = {
         }
         Relationships: []
       }
+      prompt_optimize_history: {
+        Row: {
+          action: string
+          analysis: string | null
+          created_at: string
+          feedback: string | null
+          id: string
+          mode: string
+          optimized_prompt: string
+          original_prompt: string
+          prompt_id: string | null
+          template: string
+          user_id: string
+        }
+        Insert: {
+          action?: string
+          analysis?: string | null
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          mode?: string
+          optimized_prompt: string
+          original_prompt: string
+          prompt_id?: string | null
+          template?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          analysis?: string | null
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          mode?: string
+          optimized_prompt?: string
+          original_prompt?: string
+          prompt_id?: string | null
+          template?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       prompts: {
         Row: {
           content: string | null

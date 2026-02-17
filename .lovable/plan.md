@@ -1,110 +1,106 @@
 
+# Providers / MCP Servers / Skills 综合优化计划
 
-# CC-Switch Web 云端配置管理平台
+## 1. 表单必填/选填标识
 
-基于 cc-switch 开源项目的核心功能，构建一个支持用户注册登录、云端持久化存储、导出下载的 Web 端管理平台。
+### Providers
+- **必填**: 名称, 类型, 应用类型
+- **选填**: API Key, Base URL (官方类型自动填充)
+- 在 Label 后添加红色 `*` 标识必填项，选填项添加灰色 "(选填)" 后缀
 
----
+### MCP Servers
+- **必填**: 名称, 传输类型
+- **条件必填**: Command (stdio 模式), URL (http/sse 模式)
+- **选填**: Arguments, 环境变量, 绑定应用
 
-## 🔐 用户系统
+### Skills 仓库表单
+- **必填**: 仓库所有者, 仓库名
+- **选填**: 分支 (默认 main), 子目录, 是否默认
 
-- **注册与登录**：支持邮箱密码注册/登录
-- **用户资料**：基础用户档案（昵称、头像）
-- **会话管理**：登录状态保持，安全退出
-
----
-
-## 📡 Provider 管理（API 配置管理）
-
-cc-switch 的核心功能，管理 Claude Code / Codex / Gemini CLI / OpenCode 的 API 配置。
-
-- **Provider 列表**：卡片/列表视图展示所有已配置的 Provider
-- **新增 Provider**：支持从预设模板快速创建（如官方登录、PackyCode、自定义等），也支持完全自定义配置
-- **编辑/删除 Provider**：修改 API Key、Base URL、模型配置等字段
-- **拖拽排序**：自定义 Provider 显示顺序
-- **Provider 复制**：一键复制现有配置
-- **多端点管理**：每个 Provider 支持多个 API 端点
-- **模型粒度配置**：支持 Haiku/Sonnet/Opus/自定义 四级模型配置
-- **环境变量冲突检测**：显示不同应用间的配置冲突及解决建议
+在保存按钮的 disabled 条件中同步校验必填项。
 
 ---
 
-## 🔧 MCP Server 管理
+## 2. Skills 页面优化
 
-统一管理 Claude Code、Codex、Gemini、OpenCode 四个应用的 MCP 服务器配置。
+### 2.1 列表/卡片视图切换
+- 在 Skills 标签内顶部添加 `ToggleGroup`，支持 "卡片" 和 "列表" 两种视图
+- 列表视图使用 `Table` 组件展示：名称、来源仓库、描述、安装状态、操作
+- 使用 `localStorage` 持久化用户的视图偏好
 
-- **MCP 服务器列表**：展示所有已配置的 MCP 服务器及其状态
-- **新增 MCP 服务器**：支持内置模板（mcp-fetch、mcp-filesystem 等）和自定义配置
-- **传输类型支持**：stdio / http / sse 三种传输方式
-- **启用/禁用**：开关控制哪些服务器同步到配置文件
-- **应用分配**：指定每个 MCP 服务器绑定到哪些应用
-- **导入**：支持从 JSON 导入现有 MCP 配置
-- **导出**：按应用导出 MCP 配置（Claude JSON / Codex TOML / Gemini JSON 格式）
+### 2.2 技能筛选
+- 添加搜索输入框，按名称和描述模糊匹配
+- 添加 Select 下拉筛选：按仓库来源、按安装状态 (全部/已安装/未安装)
 
----
-
-## 📚 Skills 管理
-
-管理 AI CLI 技能包，支持从 GitHub 仓库发现和管理 Skills。
-
-- **仓库管理**：添加/删除 GitHub 仓库源（预配置 Anthropic 官方、ComposioHQ 等）
-- **Skills 浏览**：展示从仓库扫描到的 Skills 列表（名称、描述、来源）
-- **安装状态管理**：标记已安装/未安装状态
-- **自定义仓库**：支持添加自定义 GitHub 仓库，包含子目录扫描
-- **递归扫描**：支持多级目录结构
+### 2.3 技能描述中文 Tips
+- 使用 `Tooltip` 组件包裹技能卡片/列表的描述区域
+- 在 Tooltip 中显示完整的中文说明
 
 ---
 
-## 📝 Prompts 管理
+## 3. GitHub API 404 修复
 
-管理系统提示词预设，支持跨应用配置。
+`anthropics/claude-code` 仓库的 `skills` 目录不存在（GitHub API 返回 404）。
 
-- **预设列表**：展示所有提示词预设
-- **Markdown 编辑器**：代码高亮 + 实时预览的编辑体验
-- **多预设管理**：创建无限量的提示词预设，快速切换
-- **跨应用支持**：标注每个预设对应的目标文件（CLAUDE.md / AGENTS.md / GEMINI.md / OPENCODE.md）
-- **激活状态**：标记当前激活的预设
-
----
-
-## 📦 导入/导出 & 配置同步
-
-- **全量导出**：一键导出所有配置为 JSON 压缩包
-- **按模块导出**：单独导出 Provider / MCP / Skills / Prompts 配置
-- **格式化导出**：按目标应用格式导出（Claude settings.json、Codex auth.json + config.toml、Gemini .env + settings.json）
-- **全量导入**：从 JSON 文件导入恢复全部配置
-- **Deep Link 生成**：生成 `ccswitch://` 协议链接用于分享 Provider 配置
+**修复方案**：
+- 将默认仓库配置从 `{ subdirectory: "skills" }` 改为 `{ subdirectory: "" }`，扫描仓库根目录
+- 或者移除此默认仓库预设，因为该路径实际不存在
+- 在 `scanSkills` 函数中增加更友好的错误提示：当 404 时提示 "仓库路径不存在，请检查子目录配置"
 
 ---
 
-## 🎨 界面与体验
+## 4. 高 Stars 技能仓库预置
 
-- **响应式设计**：桌面端优先，兼容移动端访问
-- **深色/浅色模式**：跟随系统或手动切换
-- **中英文双语**：完整的 i18n 支持
-- **侧边栏导航**：Provider / MCP / Skills / Prompts 模块快速切换
-- **操作反馈**：所有关键操作提供 Toast 通知
+在 Skills 页面的 "添加仓库" 对话框中，将默认仓库预设扩展为分类展示。
+
+### 仓库分类与预置列表
+
+**总榜 Top 10** (综合高 Stars MCP/AI 相关仓库):
+- `modelcontextprotocol/servers` - MCP 官方服务器集合
+- `anthropics/courses` - Anthropic 官方课程
+- `punkpeye/awesome-mcp-servers` - MCP 服务器合集
+- `wong2/chatgpt-google-extension` - ChatGPT 浏览器扩展
+- `anthropics/anthropic-cookbook` - Anthropic 实战示例
+- `openai/openai-cookbook` - OpenAI 实战示例
+- `microsoft/semantic-kernel` - 微软 AI 编排框架
+- `langchain-ai/langchain` - LangChain 框架
+- `run-llama/llama_index` - LlamaIndex 框架
+- `lobehub/lobe-chat` - Lobe Chat 开源项目
+
+**研发类**:
+- `anthropics/anthropic-cookbook`, `openai/openai-cookbook`, `modelcontextprotocol/servers`, `microsoft/semantic-kernel`, `langchain-ai/langchain`, `run-llama/llama_index`, `sigoden/aichat`, `continuedev/continue`, `cline/cline`, `sourcegraph/cody`
+
+**设计类**:
+- `penpot/penpot`, `excalidraw/excalidraw`, `tldraw/tldraw`, `theatre-js/theatre`, `rive-app/rive-wasm`, `imgly/cesdk-web-examples`, `BuilderIO/figma-html`, `tokens-studio/figma-plugin`, `jina-ai/reader`, `markdoc/markdoc`
+
+**办公类**:
+- `lobehub/lobe-chat`, `ChatGPTNextWeb/ChatGPT-Next-Web`, `langgenius/dify`, `n8n-io/n8n`, `FlowiseAI/Flowise`, `makeplane/plane`, `AppFlowy-IO/AppFlowy`, `twentyhq/twenty`, `hoppscotch/hoppscotch`, `nocodb/nocodb`
+
+**QA 测试类**:
+- `microsoft/playwright`, `puppeteer/puppeteer`, `cypress-io/cypress`, `SeleniumHQ/selenium`, `grafana/k6`, `locustio/locust`, `postmanlabs/httpbin`, `mockoon/mockoon`, `stoplightio/prism`, `karatelabs/karate`
+
+**文档处理类**:
+- `jina-ai/reader`, `unstructuredai/unstructured`, `DS4SD/docling`, `VikParuchuri/marker`, `opendatalab/MinerU`, `Stirling-Tools/Stirling-PDF`, `gotenberg/gotenberg`, `pandoc/pandoc`, `azimutt/azimutt`, `mermaid-js/mermaid`
+
+### UI 实现
+- 在添加仓库对话框中使用 `Tabs` 按分类组织预置仓库
+- 每个分类 Tab 下以按钮列表展示，点击一键添加
+- 按钮显示 `owner/repo` 格式
 
 ---
 
-## 🗄️ 后端架构（Supabase）
+## 技术实现细节
 
-- **数据库**：使用 Supabase PostgreSQL 存储所有用户配置数据
-  - `profiles` - 用户档案
-  - `providers` - Provider 配置
-  - `mcp_servers` - MCP 服务器配置
-  - `skills_repos` / `skills` - 技能仓库和技能
-  - `prompts` - 提示词预设
-- **认证**：Supabase Auth 邮箱密码登录
-- **安全**：所有表启用 RLS，确保用户只能访问自己的数据
-- **用户角色**：独立 `user_roles` 表管理角色权限
+### 修改文件清单
 
----
+| 文件 | 改动 |
+|------|------|
+| `src/pages/Providers.tsx` | Label 添加必填标识 |
+| `src/pages/McpServers.tsx` | Label 添加必填标识 |
+| `src/pages/Skills.tsx` | 视图切换、筛选、Tips、仓库预置分类、404 修复 |
+| `src/i18n/locales/zh.ts` | 新增筛选/视图切换/分类相关中文翻译 |
+| `src/i18n/locales/en.ts` | 对应英文翻译 |
 
-## 📋 实施优先级
-
-1. **第一阶段**：用户系统 + Provider 管理 + 导出功能
-2. **第二阶段**：MCP Server 管理 + Prompts 管理
-3. **第三阶段**：Skills 管理 + 导入功能 + Deep Link
-4. **第四阶段**：i18n 多语言 + 深色模式 + 体验优化
-
+### 依赖
+- 使用已有的 `Table`, `ToggleGroup`, `Tooltip`, `Tabs`, `Select` 组件
+- 无需新增依赖

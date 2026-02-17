@@ -1,1 +1,4 @@
 project_id = "cllruxedtdvkljmggnxd"
+
+[functions.test-connection]
+verify_jwt = false

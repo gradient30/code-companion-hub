@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Copy, Zap, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Copy, Zap, Loader2, Activity, CheckCircle2, XCircle } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Provider = Tables<"providers">;
@@ -94,6 +94,47 @@ export default function Providers() {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProvider, setEditingProvider] = useState<Provider | null>(null);
+  const [testingId, setTestingId] = useState<string | null>(null);
+  const [testResults, setTestResults] = useState<Record<string, { success: boolean; message: string; latency_ms?: number }>>({});
+
+  const testConnection = async (provider: Provider) => {
+    setTestingId(provider.id);
+    setTestResults((prev) => ({ ...prev, [provider.id]: undefined as any }));
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const resp = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/test-connection`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            type: "provider",
+            provider_type: provider.provider_type,
+            base_url: provider.base_url,
+            api_key: provider.api_key,
+            app_type: provider.app_type,
+          }),
+        }
+      );
+      const result = await resp.json();
+      setTestResults((prev) => ({ ...prev, [provider.id]: result }));
+      toast({
+        title: result.success ? "连接成功" : "连接失败",
+        description: result.message + (result.latency_ms ? ` (${result.latency_ms}ms)` : ""),
+        variant: result.success ? "default" : "destructive",
+      });
+    } catch (e: any) {
+      const result = { success: false, message: e.message };
+      setTestResults((prev) => ({ ...prev, [provider.id]: result }));
+      toast({ title: "测试失败", description: e.message, variant: "destructive" });
+    } finally {
+      setTestingId(null);
+    }
+  };
 
   const { data: providers = [], isLoading } = useQuery({
     queryKey: ["providers"],
@@ -232,6 +273,24 @@ export default function Providers() {
                   </p>
                 </div>
                 <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    disabled={testingId === provider.id}
+                    onClick={() => testConnection(provider)}
+                    title="测试连接"
+                  >
+                    {testingId === provider.id ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : testResults[provider.id]?.success === true ? (
+                      <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                    ) : testResults[provider.id]?.success === false ? (
+                      <XCircle className="h-3.5 w-3.5 text-destructive" />
+                    ) : (
+                      <Activity className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditingProvider(provider)}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>

@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Server, Loader2, Wifi, Terminal, Radio } from "lucide-react";
+import { Plus, Pencil, Trash2, Server, Loader2, Wifi, Terminal, Radio, Activity, CheckCircle2, XCircle } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type McpServer = Tables<"mcp_servers">;
@@ -169,6 +169,47 @@ export default function McpServers() {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingServer, setEditingServer] = useState<McpServer | null>(null);
+  const [testingId, setTestingId] = useState<string | null>(null);
+  const [testResults, setTestResults] = useState<Record<string, { success: boolean; message: string; latency_ms?: number }>>({});
+
+  const testConnection = async (server: McpServer) => {
+    setTestingId(server.id);
+    setTestResults((prev) => ({ ...prev, [server.id]: undefined as any }));
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const resp = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/test-connection`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            type: "mcp_server",
+            transport_type: server.transport_type,
+            command: server.command,
+            url: server.url,
+            args: Array.isArray(server.args) ? server.args : [],
+          }),
+        }
+      );
+      const result = await resp.json();
+      setTestResults((prev) => ({ ...prev, [server.id]: result }));
+      toast({
+        title: result.success ? "测试通过" : "测试失败",
+        description: result.message + (result.latency_ms ? ` (${result.latency_ms}ms)` : ""),
+        variant: result.success ? "default" : "destructive",
+      });
+    } catch (e: any) {
+      const result = { success: false, message: e.message };
+      setTestResults((prev) => ({ ...prev, [server.id]: result }));
+      toast({ title: "测试失败", description: e.message, variant: "destructive" });
+    } finally {
+      setTestingId(null);
+    }
+  };
 
   const { data: servers = [], isLoading } = useQuery({
     queryKey: ["mcp_servers"],
@@ -303,6 +344,24 @@ export default function McpServers() {
                       ))}
                     </div>
                     <div className="flex gap-1 pt-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        disabled={testingId === server.id}
+                        onClick={() => testConnection(server)}
+                        title="测试连接"
+                      >
+                        {testingId === server.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : testResults[server.id]?.success === true ? (
+                          <CheckCircle2 className="h-3 w-3 text-green-500" />
+                        ) : testResults[server.id]?.success === false ? (
+                          <XCircle className="h-3 w-3 text-destructive" />
+                        ) : (
+                          <Activity className="h-3 w-3" />
+                        )}
+                      </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingServer(server)}>
                         <Pencil className="h-3 w-3" />
                       </Button>

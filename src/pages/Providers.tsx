@@ -74,11 +74,11 @@ function ProviderForm({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>名称</Label>
+        <Label>名称 <span className="text-destructive">*</span></Label>
         <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Provider 名称" maxLength={100} />
       </div>
       <div className="space-y-2">
-        <Label>类型</Label>
+        <Label>类型 <span className="text-destructive">*</span></Label>
         <Select value={form.provider_type} onValueChange={handleProviderTypeChange}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -89,7 +89,7 @@ function ProviderForm({
         </Select>
       </div>
       <div className="space-y-2">
-        <Label>应用</Label>
+        <Label>应用 <span className="text-destructive">*</span></Label>
         <Select value={form.app_type} onValueChange={handleAppTypeChange}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -100,11 +100,11 @@ function ProviderForm({
         </Select>
       </div>
       <div className="space-y-2">
-        <Label>API Key</Label>
+        <Label>API Key <span className="text-xs text-muted-foreground ml-1">(选填)</span></Label>
         <Input type="password" value={form.api_key} onChange={(e) => setForm({ ...form, api_key: e.target.value })} placeholder="sk-..." maxLength={500} />
       </div>
       <div className="space-y-2">
-        <Label>Base URL {isAutoUrl && <span className="text-xs text-muted-foreground ml-1">(自动填充)</span>}</Label>
+        <Label>Base URL {isAutoUrl ? <span className="text-xs text-muted-foreground ml-1">(自动填充)</span> : <span className="text-xs text-muted-foreground ml-1">(选填)</span>}</Label>
         <Input value={form.base_url} onChange={(e) => setForm({ ...form, base_url: e.target.value })} placeholder="https://api.example.com" maxLength={500} disabled={isAutoUrl} className={isAutoUrl ? "opacity-70" : ""} />
       </div>
       <div className="flex items-center justify-between">

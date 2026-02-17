@@ -102,11 +102,11 @@ function McpServerForm({
   return (
     <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
       <div className="space-y-2">
-        <Label>名称</Label>
+        <Label>名称 <span className="text-destructive">*</span></Label>
         <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="MCP Server 名称" maxLength={100} />
       </div>
       <div className="space-y-2">
-        <Label>传输类型</Label>
+        <Label>传输类型 <span className="text-destructive">*</span></Label>
         <Select value={form.transport_type} onValueChange={(v) => setForm({ ...form, transport_type: v })}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -120,23 +120,23 @@ function McpServerForm({
       {form.transport_type === "stdio" ? (
         <>
           <div className="space-y-2">
-            <Label>Command</Label>
+            <Label>Command <span className="text-destructive">*</span></Label>
             <Input value={form.command} onChange={(e) => setForm({ ...form, command: e.target.value })} placeholder="npx" maxLength={500} />
           </div>
           <div className="space-y-2">
-            <Label>Arguments（空格分隔）</Label>
+            <Label>Arguments <span className="text-xs text-muted-foreground ml-1">(选填，空格分隔)</span></Label>
             <Input value={args} onChange={(e) => setArgs(e.target.value)} placeholder="-y @anthropics/mcp-fetch" maxLength={1000} />
           </div>
         </>
       ) : (
         <div className="space-y-2">
-          <Label>URL</Label>
+          <Label>URL <span className="text-destructive">*</span></Label>
           <Input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="http://localhost:3000/mcp" maxLength={500} />
         </div>
       )}
 
       <div className="space-y-2">
-        <Label>环境变量</Label>
+        <Label>环境变量 <span className="text-xs text-muted-foreground ml-1">(选填)</span></Label>
         {envEntries.map((entry, i) => (
           <div key={i} className="flex gap-2">
             <Input value={entry.key} onChange={(e) => updateEnv(i, "key", e.target.value)} placeholder="KEY" className="flex-1" maxLength={100} />
@@ -154,7 +154,7 @@ function McpServerForm({
       </div>
 
       <div className="space-y-2">
-        <Label>绑定应用</Label>
+        <Label>绑定应用 <span className="text-xs text-muted-foreground ml-1">(选填)</span></Label>
         <div className="flex flex-wrap gap-3">
           {APP_OPTIONS.map((app) => (
             <label key={app} className="flex items-center gap-2 cursor-pointer">
@@ -170,7 +170,7 @@ function McpServerForm({
         <Switch checked={form.enabled} onCheckedChange={(v) => setForm({ ...form, enabled: v })} />
       </div>
 
-      <Button className="w-full" onClick={handleSave} disabled={saving || !form.name.trim()}>
+      <Button className="w-full" onClick={handleSave} disabled={saving || !form.name.trim() || (form.transport_type === "stdio" ? !form.command.trim() : !form.url.trim())}>
         {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         保存
       </Button>

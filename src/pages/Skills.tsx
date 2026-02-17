@@ -101,8 +101,9 @@ const PRESET_TABS = [
   { key: "docs", label: "📄 文档处理" },
 ] as const;
 
-// Skill 中文说明 Tooltip
+// Skill 中文说明 Tooltip — 通用技能 + 常见仓库扫描出的技能
 const SKILL_TIPS: Record<string, string> = {
+  // MCP 相关
   "mcp-fetch": "为 AI 提供网络请求能力，可以访问外部 API 和网页内容",
   "mcp-filesystem": "让 AI 能够读写本地文件系统中的文件",
   "mcp-memory": "为 AI 提供持久化记忆存储，跨对话保持上下文",
@@ -115,6 +116,75 @@ const SKILL_TIPS: Record<string, string> = {
   "sqlite": "SQLite 数据库操作，支持本地数据库查询和管理",
   "postgres": "PostgreSQL 数据库连接与查询",
   "slack": "Slack 消息发送和频道管理集成",
+  // 常见 Claude Skills
+  "code-review": "代码审查助手，自动检查代码质量和潜在问题",
+  "unit-test": "单元测试生成器，为代码自动生成测试用例",
+  "unit-tests": "单元测试生成器，为代码自动生成测试用例",
+  "refactor": "代码重构助手，优化代码结构和可读性",
+  "debug": "调试助手，帮助定位和修复代码中的问题",
+  "documentation": "文档生成器，自动为代码生成文档注释",
+  "docs": "文档生成器，自动为代码生成技术文档",
+  "translate": "翻译助手，支持多语言互译",
+  "translation": "翻译助手，支持文本和代码注释翻译",
+  "api-design": "API 设计助手，帮助设计 RESTful 接口",
+  "database": "数据库设计助手，辅助表结构和查询优化",
+  "devops": "DevOps 助手，CI/CD 和基础设施配置",
+  "security": "安全审计助手，检测代码中的安全漏洞",
+  "performance": "性能优化助手，分析和改善应用性能",
+  "architect": "架构设计助手，提供系统设计和技术方案",
+  "architecture": "架构设计助手，提供系统设计建议",
+  "frontend": "前端开发助手，React/Vue/CSS 等技术支持",
+  "backend": "后端开发助手，服务端逻辑和 API 开发",
+  "fullstack": "全栈开发助手，前后端一体化支持",
+  "data-analysis": "数据分析助手，数据清洗和可视化",
+  "machine-learning": "机器学习助手，模型训练和部署",
+  "writing": "写作助手，辅助技术文章和文案创作",
+  "creative-writing": "创意写作助手，故事和内容创作",
+  "summarize": "内容摘要助手，快速提炼文章要点",
+  "explain": "概念解释助手，深入浅出讲解技术概念",
+  "git": "Git 操作助手，分支管理和提交规范",
+  "docker": "Docker 容器化助手，镜像构建和编排",
+  "kubernetes": "K8s 容器编排助手，集群管理和部署",
+  "terraform": "基础设施即代码助手，云资源编排",
+  "aws": "AWS 云服务助手，云架构设计和配置",
+  "python": "Python 开发助手，脚本和应用开发",
+  "javascript": "JavaScript 开发助手，前后端 JS 开发",
+  "typescript": "TypeScript 开发助手，类型安全开发",
+  "rust": "Rust 开发助手，系统级编程支持",
+  "go": "Go 开发助手，高并发服务开发",
+  "java": "Java 开发助手，企业级应用开发",
+  "sql": "SQL 助手，数据库查询和优化",
+  "css": "CSS 样式助手，布局和动画设计",
+  "react": "React 开发助手，组件和 Hooks 开发",
+  "vue": "Vue 开发助手，组件化前端开发",
+  "nextjs": "Next.js 开发助手，SSR/SSG 应用开发",
+  "tailwind": "Tailwind CSS 助手，实用类样式开发",
+  "markdown": "Markdown 助手，文档格式化和排版",
+  "regex": "正则表达式助手，模式匹配和文本处理",
+  "cli": "命令行工具助手，Shell 脚本和 CLI 开发",
+  "testing": "测试助手，自动化测试策略和用例编写",
+  "migration": "数据迁移助手，数据库和系统迁移",
+  "optimization": "优化助手，代码和系统性能调优",
+  "monitoring": "监控助手，日志分析和告警配置",
+  "accessibility": "无障碍助手，Web 可访问性优化",
+  "seo": "SEO 优化助手，搜索引擎优化策略",
+  "i18n": "国际化助手，多语言和本地化支持",
+  "email": "邮件模板助手，HTML 邮件设计",
+  "chatbot": "聊天机器人助手，对话流程设计",
+  "scraping": "网页抓取助手，数据采集和解析",
+  "pdf": "PDF 处理助手，文档生成和解析",
+  "image": "图像处理助手，图片编辑和优化",
+  "video": "视频处理助手，视频编辑和转码",
+  "audio": "音频处理助手，音频编辑和转换",
+  "math": "数学计算助手，公式推导和计算",
+  "finance": "金融分析助手，财务数据和报表",
+  "legal": "法律助手，合同和法规分析",
+  "medical": "医疗助手，医学知识和文献查阅",
+  "education": "教育助手，课程设计和学习辅导",
+  "game": "游戏开发助手，游戏逻辑和设计",
+  "blockchain": "区块链助手，智能合约和 DApp 开发",
+  "ai-prompt": "提示词工程助手，Prompt 设计和优化",
+  "prompt-engineering": "提示词工程助手，Prompt 优化",
 };
 
 function RepoForm({
@@ -490,8 +560,8 @@ export default function Skills() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>名称</TableHead>
-                    <TableHead>来源仓库</TableHead>
+                    <TableHead className="w-[160px]">名称</TableHead>
+                    <TableHead className="w-[140px]">来源仓库</TableHead>
                     <TableHead>描述</TableHead>
                     <TableHead className="w-[80px]">状态</TableHead>
                     <TableHead className="w-[60px]">操作</TableHead>
@@ -500,30 +570,38 @@ export default function Skills() {
                 <TableBody>
                   {filteredSkills.map((skill) => {
                     const repo = repos.find((r) => r.id === skill.repo_id);
-                    const tip = SKILL_TIPS[skill.name];
+                    const tip = SKILL_TIPS[skill.name] || SKILL_TIPS[skill.name.toLowerCase()];
+                    const descText = skill.description || tip || "-";
                     return (
                       <TableRow key={skill.id} className={!skill.installed ? "opacity-60" : ""}>
-                        <TableCell className="font-medium text-sm">{skill.name}</TableCell>
-                        <TableCell className="text-xs text-muted-foreground">{repo ? `${repo.owner}/${repo.repo}` : "-"}</TableCell>
-                        <TableCell className="text-xs text-muted-foreground max-w-[200px]">
-                          {tip ? (
-                            <TooltipProvider delayDuration={200}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="inline-flex items-center gap-1 cursor-help">
-                                    <span className="truncate">{skill.description || tip}</span>
-                                    <Info className="h-3 w-3 shrink-0 text-muted-foreground/60" />
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent className="max-w-xs"><p>{tip}</p></TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          ) : (
-                            <span className="truncate">{skill.description || "-"}</span>
-                          )}
+                        <TableCell className="font-medium text-sm max-w-[160px]">
+                          <TooltipProvider delayDuration={200}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="block truncate cursor-help">{skill.name}</span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-sm">
+                                <p className="font-semibold">{skill.name}</p>
+                                {tip && <p className="text-xs mt-1">{tip}</p>}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground max-w-[140px]">
+                          <span className="block truncate">{repo ? `${repo.owner}/${repo.repo}` : "-"}</span>
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          <TooltipProvider delayDuration={200}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="block truncate max-w-[240px] cursor-help">{descText}</span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-sm"><p>{descText}</p></TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={skill.installed ? "default" : "secondary"} className="text-[10px]">
+                          <Badge variant={skill.installed ? "default" : "secondary"} className="text-[10px] whitespace-nowrap">
                             {skill.installed ? "已安装" : "未安装"}
                           </Badge>
                         </TableCell>
@@ -543,36 +621,43 @@ export default function Skills() {
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {filteredSkills.map((skill) => {
                 const repo = repos.find((r) => r.id === skill.repo_id);
-                const tip = SKILL_TIPS[skill.name];
+                const tip = SKILL_TIPS[skill.name] || SKILL_TIPS[skill.name.toLowerCase()];
+                const descText = skill.description || tip || "";
                 return (
                   <Card key={skill.id} className={`transition-opacity ${!skill.installed ? "opacity-60" : ""}`}>
-                    <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-                      <div>
-                        <CardTitle className="text-sm">{skill.name}</CardTitle>
-                        {repo && <p className="text-[10px] text-muted-foreground">{repo.owner}/{repo.repo}</p>}
+                    <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2 gap-2">
+                      <div className="min-w-0 flex-1">
+                        <TooltipProvider delayDuration={200}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <CardTitle className="text-sm truncate cursor-help">{skill.name}</CardTitle>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-sm">
+                              <p className="font-semibold">{skill.name}</p>
+                              {tip && <p className="text-xs mt-1">{tip}</p>}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        {repo && <p className="text-[10px] text-muted-foreground truncate">{repo.owner}/{repo.repo}</p>}
                       </div>
                       <Switch
+                        className="shrink-0"
                         checked={skill.installed}
                         onCheckedChange={(v) => toggleInstalled.mutate({ id: skill.id, installed: v })}
                       />
                     </CardHeader>
-                    <CardContent>
-                      {tip ? (
+                    {descText && (
+                      <CardContent>
                         <TooltipProvider delayDuration={200}>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <p className="text-xs text-muted-foreground line-clamp-2 cursor-help inline-flex items-center gap-1">
-                                {skill.description || tip}
-                                <Info className="h-3 w-3 shrink-0 text-muted-foreground/60" />
-                              </p>
+                              <p className="text-xs text-muted-foreground line-clamp-2 cursor-help">{descText}</p>
                             </TooltipTrigger>
-                            <TooltipContent className="max-w-xs"><p>{tip}</p></TooltipContent>
+                            <TooltipContent side="bottom" className="max-w-sm"><p>{descText}</p></TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
-                      ) : skill.description ? (
-                        <p className="text-xs text-muted-foreground line-clamp-2">{skill.description}</p>
-                      ) : null}
-                    </CardContent>
+                      </CardContent>
+                    )}
                   </Card>
                 );
               })}

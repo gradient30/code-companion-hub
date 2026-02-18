@@ -3,6 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- GitHub Pages SPA 路由还原脚本：将 404.html 重定向的路径还原为真实路径 -->
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var p = params.get('p');
+        if (p) {
+          var q = params.get('q');
+          var newUrl = window.location.pathname + decodeURIComponent(p) + (q ? '?' + decodeURIComponent(q) : '') + window.location.hash;
+          window.history.replaceState(null, null, newUrl);
+        }
+      })();
+    </script>
     <!-- TODO: Set the document title to the name of your application -->
     <title>Lovable App</title>
     <meta name="description" content="Lovable Generated Project">

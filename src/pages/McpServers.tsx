@@ -417,7 +417,7 @@ export default function McpServers() {
           </p>
           <ul className="text-xs text-muted-foreground space-y-1 ml-1">
             <li><code className="bg-muted px-1 rounded">Claude Code</code> → <code className="bg-muted px-1 rounded">~/.claude/settings.json</code></li>
-            <li><code className="bg-muted px-1 rounded">Codex CLI</code> → <code className="bg-muted px-1 rounded">~/.codex/config.json</code></li>
+            <li><code className="bg-muted px-1 rounded">Codex CLI</code> → <code className="bg-muted px-1 rounded">~/.codex/config.toml</code></li>
             <li><code className="bg-muted px-1 rounded">Gemini CLI</code> → <code className="bg-muted px-1 rounded">~/.gemini/settings.json</code></li>
             <li><code className="bg-muted px-1 rounded">OpenCode</code> → <code className="bg-muted px-1 rounded">~/.config/opencode/config.json</code></li>
           </ul>

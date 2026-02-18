@@ -365,7 +365,7 @@ export default function Export() {
       zip.file("skills_repos.json", JSON.stringify(cleanRepos, null, 2));
 
       const blob = await zip.generateAsync({ type: "blob" });
-      saveAs(blob, `cc-switch-backup-${new Date().toISOString().slice(0, 10)}.zip`);
+      saveAs(blob, `ai-helper-backup-${new Date().toISOString().slice(0, 10)}.zip`);
       toast({ title: t("export.exportSuccess"), description: t("export.backupDesc") });
     } catch (e: any) {
       toast({ title: t("common.error"), description: e.message, variant: "destructive" });
@@ -379,7 +379,7 @@ export default function Export() {
   const handleModuleExport = (module: string, data: any[]) => {
     const clean = data.map(({ id, user_id, created_at, updated_at, ...rest }: any) => rest);
     const blob = new Blob([JSON.stringify(clean, null, 2)], { type: "application/json" });
-    saveAs(blob, `cc-switch-${module}-${new Date().toISOString().slice(0, 10)}.json`);
+    saveAs(blob, `ai-helper-${module}-${new Date().toISOString().slice(0, 10)}.json`);
     toast({ title: t("export.exportSuccess") });
   };
 

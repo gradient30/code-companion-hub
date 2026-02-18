@@ -51,42 +51,89 @@ ${description}
 `;
 }
 
-/** Generate env.sh content from provider list */
-function generateEnvSh(providerList: any[], appLabel: string, envKeyName: string, baseUrlEnvName?: string): string {
-  const lines: string[] = [
-    "#!/bin/bash",
-    `# CC Switch - ${appLabel} 环境变量配置`,
-    "# 将以下内容添加到 ~/.bashrc 或 ~/.zshrc",
-    "",
-  ];
-  providerList.forEach((p) => {
-    if (p.api_key) lines.push(`export ${envKeyName}="${p.api_key}"`);
-    if (baseUrlEnvName && p.base_url) lines.push(`export ${baseUrlEnvName}="${p.base_url}"`);
-  });
-  return lines.join("\n") + "\n";
+/** Build Claude Code settings.json — merges MCP + Provider env fields */
+function buildClaudeSettingsJson(mcps: any[], providers: any[]): object {
+  const result: any = {
+    $schema: "https://json.schemastore.org/claude-code-settings.json",
+  };
+
+  // Custom (non-official) enabled provider → write into env block
+  const customProvider = providers.find((p) => p.provider_type !== "official" && p.enabled);
+  if (customProvider) {
+    result.env = {} as Record<string, string>;
+    if (customProvider.api_key) result.env["ANTHROPIC_AUTH_TOKEN"] = customProvider.api_key;
+    if (customProvider.base_url) result.env["ANTHROPIC_BASE_URL"] = customProvider.base_url;
+    // Extract model from model_config if present
+    const modelId =
+      customProvider.model_config &&
+      typeof customProvider.model_config === "object" &&
+      (customProvider.model_config as any).model;
+    if (modelId) {
+      result.env["ANTHROPIC_MODEL"] = modelId;
+      result.env["ANTHROPIC_DEFAULT_SONNET_MODEL"] = modelId;
+      result.env["ANTHROPIC_DEFAULT_HAIKU_MODEL"] = modelId;
+      result.env["ANTHROPIC_DEFAULT_OPUS_MODEL"] = modelId;
+      result.model = modelId;
+    }
+  }
+
+  result.permissions = { allow: ["*"], deny: [] };
+
+  const mcpServersObj = buildMcpServersObject(mcps);
+  if (Object.keys(mcpServersObj).length > 0) {
+    result.mcpServers = mcpServersObj;
+  }
+
+  return result;
 }
 
-/** Generate Codex config.yaml YAML string */
-function generateCodexConfigYaml(providers: any[]): string {
+/** Generate Codex config.toml — TOML format, MCP inline as [mcp_servers.name] */
+function generateCodexConfigToml(providers: any[], mcps: any[]): string {
   const lines: string[] = [
     "# CC Switch - Codex CLI 配置",
-    "# 放置路径: ~/.codex/config.yaml",
+    "# 放置路径: ~/.codex/config.toml",
     "",
-    "model: o4-mini",
-    "provider: openai",
   ];
-  const customProviders = providers.filter((p) => p.provider_type !== "official");
-  if (customProviders.length > 0) {
-    lines.push("");
-    lines.push("providers:");
-    customProviders.forEach((p) => {
-      const key = p.name.toLowerCase().replace(/\s+/g, "_");
-      lines.push(`  ${key}:`);
-      lines.push(`    name: ${p.name}`);
-      if (p.base_url) lines.push(`    baseURL: ${p.base_url}`);
-      lines.push(`    envKey: OPENAI_API_KEY`);
-    });
+
+  // Top-level model / provider from enabled custom provider
+  const customProvider = providers.find((p) => p.provider_type !== "official" && p.enabled);
+  const modelId =
+    customProvider?.model_config &&
+    typeof customProvider.model_config === "object" &&
+    (customProvider.model_config as any).model;
+
+  lines.push(`model = "${modelId || "o4-mini"}"`);
+  if (customProvider?.api_key) {
+    lines.push(`api_key = "${customProvider.api_key}"`);
   }
+  if (customProvider?.base_url) {
+    lines.push(`provider_base_url = "${customProvider.base_url}"`);
+  }
+
+  // MCP Servers — embedded as [mcp_servers.<name>] tables
+  mcps.forEach((m) => {
+    lines.push("");
+    // Sanitize key: TOML keys cannot have spaces or special chars
+    const key = m.name.replace(/[^a-zA-Z0-9_-]/g, "_");
+    lines.push(`[mcp_servers.${key}]`);
+    if (m.transport_type === "stdio") {
+      lines.push(`type = "stdio"`);
+      if (m.command) lines.push(`command = "${m.command}"`);
+      const args = (Array.isArray(m.args) ? m.args : [])
+        .map((a: string) => `"${String(a).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`)
+        .join(", ");
+      lines.push(`args = [${args}]`);
+    } else {
+      // http / sse — only url, no type field (per real config.toml spec)
+      lines.push(`url = "${m.url}"`);
+    }
+    if (m.env && typeof m.env === "object" && Object.keys(m.env).length > 0) {
+      Object.entries(m.env).forEach(([k, v]) => {
+        lines.push(`env.${k} = "${String(v).replace(/"/g, '\\"')}"`);
+      });
+    }
+  });
+
   return lines.join("\n") + "\n";
 }
 
@@ -167,20 +214,16 @@ export default function Export() {
 
       const { enabledMcps, installedSkills, enabledProviders } = getAppStats("claude");
 
-      // settings.json — MCP Servers only
-      const mcpServersObj = buildMcpServersObject(enabledMcps);
-      folder.file("settings.json", JSON.stringify({ mcpServers: mcpServersObj }, null, 2));
+      // settings.json — MCP + Provider env merged per official spec
+      folder.file(
+        "settings.json",
+        JSON.stringify(buildClaudeSettingsJson(enabledMcps, enabledProviders), null, 2)
+      );
 
       // CLAUDE.md — active prompt targeting CLAUDE.md
       const claudePrompt = prompts.find((p: any) => p.is_active && p.target_file === "CLAUDE.md");
       if (claudePrompt) {
         folder.file("CLAUDE.md", claudePrompt.content || "");
-      }
-
-      // env.sh — only for custom providers
-      const customProviders = enabledProviders.filter((p: any) => p.provider_type !== "official");
-      if (customProviders.length > 0) {
-        folder.file("env.sh", generateEnvSh(customProviders, "Claude Code", "ANTHROPIC_API_KEY", "ANTHROPIC_BASE_URL"));
       }
 
       // skills/<name>/SKILL.md
@@ -196,7 +239,7 @@ export default function Export() {
       saveAs(blob, `claude-export-${date}.zip`);
       toast({
         title: t("export.exportSuccess"),
-        description: `settings.json · ${claudePrompt ? "CLAUDE.md · " : ""}${customProviders.length > 0 ? "env.sh · " : ""}${installedSkills.length > 0 ? `skills/ (${installedSkills.length})` : ""}`,
+        description: `settings.json${claudePrompt ? " · CLAUDE.md" : ""}${installedSkills.length > 0 ? ` · skills/ (${installedSkills.length})` : ""}`,
       });
     } catch (e: any) {
       toast({ title: t("common.error"), description: e.message, variant: "destructive" });
@@ -216,12 +259,8 @@ export default function Export() {
 
       const { enabledMcps, enabledProviders } = getAppStats("codex");
 
-      // config.yaml — Provider config in YAML format
-      folder.file("config.yaml", generateCodexConfigYaml(enabledProviders));
-
-      // mcp.json — MCP Servers
-      const mcpServersObj = buildMcpServersObject(enabledMcps);
-      folder.file("mcp.json", JSON.stringify({ mcpServers: mcpServersObj }, null, 2));
+      // config.toml — Provider + MCP Servers in TOML format (official ~/.codex/config.toml spec)
+      folder.file("config.toml", generateCodexConfigToml(enabledProviders, enabledMcps));
 
       // AGENTS.md — active prompt
       const agentsPrompt = prompts.find((p: any) => p.is_active && p.target_file === "AGENTS.md");
@@ -229,17 +268,11 @@ export default function Export() {
         folder.file("AGENTS.md", agentsPrompt.content || "");
       }
 
-      // env.sh for custom providers
-      const customProviders = enabledProviders.filter((p: any) => p.provider_type !== "official");
-      if (customProviders.length > 0) {
-        folder.file("env.sh", generateEnvSh(customProviders, "Codex CLI", "OPENAI_API_KEY", "OPENAI_BASE_URL"));
-      }
-
       const blob = await zip.generateAsync({ type: "blob" });
       saveAs(blob, `codex-export-${date}.zip`);
       toast({
         title: t("export.exportSuccess"),
-        description: `config.yaml · mcp.json${agentsPrompt ? " · AGENTS.md" : ""}`,
+        description: `config.toml${agentsPrompt ? " · AGENTS.md" : ""}`,
       });
     } catch (e: any) {
       toast({ title: t("common.error"), description: e.message, variant: "destructive" });
@@ -257,9 +290,9 @@ export default function Export() {
       const zip = new JSZip();
       const folder = zip.folder(`gemini-export-${date}`)!;
 
-      const { enabledMcps, enabledProviders } = getAppStats("gemini");
+      const { enabledMcps } = getAppStats("gemini");
 
-      // settings.json — MCP Servers
+      // settings.json — MCP Servers (Gemini API key via GOOGLE_API_KEY env var, not in file)
       const mcpServersObj = buildMcpServersObject(enabledMcps);
       folder.file("settings.json", JSON.stringify({ mcpServers: mcpServersObj }, null, 2));
 
@@ -269,17 +302,11 @@ export default function Export() {
         folder.file("GEMINI.md", geminiPrompt.content || "");
       }
 
-      // env.sh for custom providers
-      const customProviders = enabledProviders.filter((p: any) => p.provider_type !== "official");
-      if (customProviders.length > 0) {
-        folder.file("env.sh", generateEnvSh(customProviders, "Gemini CLI", "GEMINI_API_KEY", "GEMINI_BASE_URL"));
-      }
-
       const blob = await zip.generateAsync({ type: "blob" });
       saveAs(blob, `gemini-export-${date}.zip`);
       toast({
         title: t("export.exportSuccess"),
-        description: `settings.json${geminiPrompt ? " · GEMINI.md" : ""}${customProviders.length > 0 ? " · env.sh" : ""}`,
+        description: `settings.json${geminiPrompt ? " · GEMINI.md" : ""}`,
       });
     } catch (e: any) {
       toast({ title: t("common.error"), description: e.message, variant: "destructive" });
@@ -429,10 +456,9 @@ export default function Export() {
       label: "Claude Code",
       onExport: exportClaude,
       files: [
-        { name: "settings.json", path: "~/.claude/settings.json", icon: <Settings className="h-3 w-3" />, desc: "MCP Servers" },
-        { name: "CLAUDE.md", path: "~/.claude/CLAUDE.md", icon: <FileText className="h-3 w-3" />, desc: "系统提示词" },
-        { name: "skills/<name>/SKILL.md", path: "~/.claude/skills/", icon: <FileCode className="h-3 w-3" />, desc: "已安装 Skills" },
-        { name: "env.sh", path: "~/.bashrc / ~/.zshrc", icon: <FileCode className="h-3 w-3" />, desc: "按需添加（自定义 Provider）", optional: true },
+        { name: "settings.json", path: "~/.claude/settings.json", icon: <Settings className="h-3 w-3" />, desc: "MCP + Provider env" },
+        { name: "CLAUDE.md", path: "~/.claude/CLAUDE.md", icon: <FileText className="h-3 w-3" />, desc: "系统提示词", optional: true },
+        { name: "skills/<name>/SKILL.md", path: "~/.claude/skills/", icon: <FileCode className="h-3 w-3" />, desc: "已安装 Skills", optional: true },
       ],
       stats: () => {
         const s = getAppStats("claude");
@@ -444,8 +470,7 @@ export default function Export() {
       label: "Codex CLI",
       onExport: exportCodex,
       files: [
-        { name: "config.yaml", path: "~/.codex/config.yaml", icon: <Settings className="h-3 w-3" />, desc: "Provider 配置（YAML）" },
-        { name: "mcp.json", path: "~/.codex/mcp.json", icon: <FileCode className="h-3 w-3" />, desc: "MCP Servers" },
+        { name: "config.toml", path: "~/.codex/config.toml", icon: <Settings className="h-3 w-3" />, desc: "Provider + MCP Servers（TOML）" },
         { name: "AGENTS.md", path: "项目根目录", icon: <FileText className="h-3 w-3" />, desc: "系统提示词", optional: true },
       ],
       stats: () => {
@@ -460,7 +485,6 @@ export default function Export() {
       files: [
         { name: "settings.json", path: "~/.gemini/settings.json", icon: <Settings className="h-3 w-3" />, desc: "MCP Servers" },
         { name: "GEMINI.md", path: "项目根目录", icon: <FileText className="h-3 w-3" />, desc: "系统提示词", optional: true },
-        { name: "env.sh", path: "~/.bashrc / ~/.zshrc", icon: <FileCode className="h-3 w-3" />, desc: "API Key（按需）", optional: true },
       ],
       stats: () => {
         const s = getAppStats("gemini");

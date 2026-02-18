@@ -146,7 +146,7 @@ const claudeGroups: SetupGuideGroup[] = [
     category: "常见问题 FAQ",
     icon: HelpCircle,
     items: [
-      { title: "支持哪些模型？", description: "Claude Code 支持 claude-sonnet-4-5-20250929（当前默认 Sonnet）、claude-opus-4-20250514、claude-haiku-4-20251002 等。使用 sonnet/opus/haiku 别名快速切换。具体可用模型取决于账户类型。", badge: "faq" },
+      { title: "支持哪些模型？", description: "Claude Code 最新支持 claude-sonnet-4-6（2026-02，默认旗舰）、claude-opus-4-6（2026-02，最强推理）、claude-haiku-4-20251002（快速经济型）。使用 sonnet/opus/haiku 别名快速切换。两者均支持 1M token 上下文（Beta）。", badge: "faq" },
       { title: "Claude Max Plan 有何优势？", description: "Max Plan 用户可直接通过 OAuth 登录使用 Claude Code，无需 API Key，按月订阅享受更高额度和优先访问。", badge: "faq" },
       { title: "费用如何计算？", description: "按 Token 使用量计费，包括输入和输出 Token。使用 /cost 命令可查看当前会话的费用统计。建议开启 Anthropic Console 的用量提醒。", badge: "faq" },
       { title: "如何在企业代理后使用？", description: "设置 HTTP_PROXY 和 HTTPS_PROXY 环境变量，或在 settings.json[\"env\"] 中配置代理相关变量。", badge: "faq" },
@@ -244,7 +244,7 @@ const codexGroups: SetupGuideGroup[] = [
     category: "常见问题 FAQ",
     icon: HelpCircle,
     items: [
-      { title: "支持哪些 LLM 提供者？", description: "Codex CLI 支持 OpenAI（默认）、Google Gemini、Anthropic Claude、Mistral、DeepSeek、Ollama 等多个提供者。通过设置对应的 API Key 和 --model 参数即可切换。", badge: "faq" },
+      { title: "支持哪些 LLM 提供者？", description: "Codex CLI 支持 OpenAI（默认，o4-mini / GPT-5.3-Codex）、Google Gemini（Gemini 2.5 Pro/Flash）、Anthropic Claude（claude-sonnet-4-6）、DeepSeek（R2/V3.2）、Ollama 本地模型等多个提供者。通过设置对应的 API Key 和 --model 参数即可切换。", badge: "faq" },
       { title: "沙箱如何工作？", description: "macOS 上通过 Docker 容器隔离，Linux 上通过 bubblewrap 实现用户命名空间隔离。沙箱限制了文件系统和网络访问，防止误操作。", badge: "faq" },
       { title: "如何自定义指令？", description: "在项目根目录创建 AGENTS.md 文件，Codex CLI 启动时会自动读取其中的系统指令。也可在 ~/.codex/instructions.md 设置全局指令。", badge: "faq" },
       { title: "如何查看历史会话？", description: "Codex CLI 默认保存会话历史，可通过 config.toml 中的 [history] 配置管理。历史记录存储在 ~/.codex/ 目录下。", badge: "faq" },
@@ -260,7 +260,7 @@ const geminiGroups: SetupGuideGroup[] = [
     icon: Shield,
     items: [
       { title: "Node.js >= 18", description: "Gemini CLI 基于 Node.js 运行，需要 18.x 或更高版本。", code: "node --version", badge: "prereq" },
-      { title: "Google 账户", description: "免费 Google 账户即可通过 OAuth 登录使用。免费层：60 次/分钟，1,000 次/天（Gemini 3 模型）。", badge: "prereq" },
+      { title: "Google 账户", description: "免费 Google 账户即可通过 OAuth 登录使用。免费层：60 次/分钟，1,000 次/天（Gemini 3 默认模型）。", badge: "prereq" },
     ],
   },
   {
@@ -312,8 +312,8 @@ const geminiGroups: SetupGuideGroup[] = [
     category: "常见问题 FAQ",
     icon: HelpCircle,
     items: [
-      { title: "免费额度是多少？", description: "Google OAuth 登录：60 次/分钟，1,000 次/天（使用 Gemini 3 模型）。API Key 免费层：1,000 次/天（Gemini 3 Flash 和 Pro 混合）。", badge: "faq" },
-      { title: "如何切换模型？", description: "使用 --model 参数或在交互模式中使用 /model 命令切换，支持 gemini-2.5-pro、gemini-2.5-flash 等。", badge: "faq" },
+      { title: "免费额度是多少？", description: "Google OAuth 登录：60 次/分钟，1,000 次/天（使用 Gemini 3 默认模型）。API Key 免费层：1,000 次/天（Gemini 2.5 Flash/Pro 混合）。付费计划可升级到更高配额。", badge: "faq" },
+      { title: "如何切换模型？", description: "使用 --model 参数或在交互模式中使用 /model 命令切换，支持 gemini-2.5-pro、gemini-2.5-flash、gemini-3-pro-preview 等（Gemini 3 为 2026 年最新版本）。", badge: "faq" },
       { title: "GEMINI.md 是什么？", description: "GEMINI.md 是项目级的自定义指令文件，放置在项目根目录。Gemini CLI 启动时会自动加载，用于设置项目特定的行为偏好和上下文。", badge: "faq" },
     ],
   },

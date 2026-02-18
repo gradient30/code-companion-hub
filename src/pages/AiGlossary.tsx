@@ -2,7 +2,8 @@ import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Bot, GitFork, Users, BookOpen, Server, Radio, Code2, Database, GitBranch, MessageSquare,
-  ChevronDown, ChevronUp, Search, Lightbulb, Zap, Target, Link2
+  ChevronDown, ChevronUp, Search, Lightbulb, Zap, Target, Link2,
+  Cpu, Sparkles, Globe, BrainCircuit, Layers
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -81,6 +82,18 @@ const glossaryTabs: GlossaryTab[] = [
       { id: "rag", titleKey: "aiGlossary.rag.title", subtitleKey: "aiGlossary.rag.subtitle", icon: Database, sections: makeSections("rag") },
       { id: "workflow", titleKey: "aiGlossary.workflow.title", subtitleKey: "aiGlossary.workflow.subtitle", icon: GitBranch, sections: makeSections("workflow") },
       { id: "prompt", titleKey: "aiGlossary.prompt.title", subtitleKey: "aiGlossary.prompt.subtitle", icon: MessageSquare, sections: makeSections("prompt") },
+    ],
+  },
+  {
+    id: "models",
+    nameKey: "aiGlossary.tabs.models",
+    concepts: [
+      { id: "anthropic", titleKey: "aiGlossary.anthropic.title", subtitleKey: "aiGlossary.anthropic.subtitle", icon: Sparkles, sections: makeSections("anthropic") },
+      { id: "openai", titleKey: "aiGlossary.openai.title", subtitleKey: "aiGlossary.openai.subtitle", icon: BrainCircuit, sections: makeSections("openai") },
+      { id: "google", titleKey: "aiGlossary.google.title", subtitleKey: "aiGlossary.google.subtitle", icon: Globe, sections: makeSections("google") },
+      { id: "meta", titleKey: "aiGlossary.meta.title", subtitleKey: "aiGlossary.meta.subtitle", icon: Layers, sections: makeSections("meta") },
+      { id: "chinese", titleKey: "aiGlossary.chinese.title", subtitleKey: "aiGlossary.chinese.subtitle", icon: Cpu, sections: makeSections("chinese") },
+      { id: "specialized", titleKey: "aiGlossary.specialized.title", subtitleKey: "aiGlossary.specialized.subtitle", icon: Zap, sections: makeSections("specialized") },
     ],
   },
 ];

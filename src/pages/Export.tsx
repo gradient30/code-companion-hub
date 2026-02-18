@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { Download, Upload, Link2, Package, FileJson, Copy, Loader2 } from "lucide-react";
 import { HelpDialog } from "@/components/HelpDialog";
@@ -322,11 +323,33 @@ export default function Export() {
               <CardTitle className="text-base">{t("export.appExport")}</CardTitle>
               <CardDescription>{t("export.appExportDesc")}</CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" onClick={() => handleAppExport("claude")}>{t("export.claudeExport")}</Button>
-              <Button variant="outline" size="sm" onClick={() => handleAppExport("codex")}>{t("export.codexExport")}</Button>
-              <Button variant="outline" size="sm" onClick={() => handleAppExport("gemini")}>{t("export.geminiExport")}</Button>
-              <Button variant="outline" size="sm" onClick={() => handleAppExport("opencode")}>{t("export.opencodeExport")}</Button>
+            <CardContent className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {([
+                  { key: "claude", label: t("export.claudeExport"), path: "~/.claude/settings.json", extra: "+ CLAUDE.md" },
+                  { key: "codex", label: t("export.codexExport"), path: "~/.codex/config.json", extra: "+ AGENTS.md" },
+                  { key: "gemini", label: t("export.geminiExport"), path: "~/.gemini/settings.json", extra: "+ GEMINI.md" },
+                  { key: "opencode", label: t("export.opencodeExport"), path: "~/.config/opencode/config.json", extra: "+ OPENCODE.md" },
+                ] as const).map(({ key, label, path, extra }) => (
+                  <div key={key} className="flex flex-col gap-1.5 rounded-lg border p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium capitalize">{key}</span>
+                      <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handleAppExport(key)}>
+                        <Download className="mr-1 h-3 w-3" />{label}
+                      </Button>
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-xs text-muted-foreground">
+                        放置路径：<code className="bg-muted px-1 rounded">{path}</code>
+                      </p>
+                      <p className="text-xs text-muted-foreground/70">{extra}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground border-t pt-3">
+                💡 下载后将文件放到对应路径，CLI 工具下次启动时会自动读取。
+              </p>
             </CardContent>
           </Card>
         </TabsContent>

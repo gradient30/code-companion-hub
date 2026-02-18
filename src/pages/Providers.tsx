@@ -10,7 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Copy, Zap, Loader2, Activity, CheckCircle2, XCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, Copy, Zap, Loader2, Activity, CheckCircle2, XCircle, Info, FolderOpen } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useTranslation } from "react-i18next";
 import { HelpDialog } from "@/components/HelpDialog";
 import type { Tables } from "@/integrations/supabase/types";
@@ -122,6 +124,7 @@ function ProviderForm({
 export default function Providers() {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProvider, setEditingProvider] = useState<Provider | null>(null);
@@ -291,6 +294,25 @@ export default function Providers() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Local Deployment Banner */}
+      <Alert className="border-primary/30 bg-primary/5">
+        <Info className="h-4 w-4 text-primary" />
+        <AlertTitle className="text-sm font-semibold">本地部署说明</AlertTitle>
+        <AlertDescription className="mt-2 space-y-2">
+          <p className="text-sm text-muted-foreground">
+            Provider 配置已实时备份到云端。要应用到本地 CLI，需导出配置文件并放置到对应路径：
+          </p>
+          <ul className="text-xs text-muted-foreground space-y-1 ml-1">
+            <li><code className="bg-muted px-1 rounded">Claude Code</code> → <code className="bg-muted px-1 rounded">~/.claude/settings.json</code></li>
+            <li><code className="bg-muted px-1 rounded">Codex CLI</code> → <code className="bg-muted px-1 rounded">~/.codex/config.json</code></li>
+            <li><code className="bg-muted px-1 rounded">Gemini CLI</code> → <code className="bg-muted px-1 rounded">~/.gemini/settings.json</code></li>
+          </ul>
+          <Button size="sm" variant="outline" className="mt-1 h-7 text-xs" onClick={() => navigate("/export")}>
+            <FolderOpen className="mr-1.5 h-3 w-3" />前往导出配置
+          </Button>
+        </AlertDescription>
+      </Alert>
 
       {providers.length === 0 ? (
         <Card>

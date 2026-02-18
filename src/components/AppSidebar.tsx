@@ -42,7 +42,7 @@ export function AppSidebar() {
             <Zap className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-sidebar-foreground">CC-Switch</h2>
+            <h2 className="text-sm font-bold text-sidebar-foreground">AI Helper</h2>
             <p className="text-xs text-sidebar-foreground/60">{t("nav.platform")}</p>
           </div>
         </div>

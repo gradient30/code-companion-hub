@@ -129,7 +129,7 @@ export default function AiGlossary() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">{t("aiGlossary.title")}</h1>
-        <p className="text-muted-foreground mt-1">{t("aiGlossary.subtitle")}</p>
+        <p className="text-muted-foreground mt-1">{t("aiGlossary.subtitle")} · <span className="text-xs font-mono text-primary/70">Updated Feb 2026</span></p>
       </div>
 
       <Tabs defaultValue="agent-system">

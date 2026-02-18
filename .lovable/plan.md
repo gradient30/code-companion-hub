@@ -1,241 +1,224 @@
 
-# 基于真实本地文件的导出格式偏差评估与修正
+# AI Helper 部署方案：GitHub Pages + Cloudflare Pages
 
-## 三份上传文件揭示的真实偏差
+## 当前项目分析
 
-### 文件一：`%userprofile%\.claude.json`（注意：是根目录的 .claude.json，不是 settings.json）
+### 关键发现
 
-真实结构发现：
-- `.claude.json` 是 Claude Code 的**运行时状态文件**（启动次数、tips历史、MCP servers 连接状态等），**不是用户需要手动配置的文件**，不应导出此文件
+1. **项目名称**: `ai-helper`（品牌名，用于命名部署项目）
+2. **包管理器**: 同时存在 `bun.lockb` 和 `package-lock.json`，两者都有。工作流需要用 `npm ci`（与参考一致）
+3. **`vite.config.ts`**: 当前**没有** `base` 字段，GitHub Pages 部署必须加上动态 base
+4. **Router**: 使用 `BrowserRouter`（客户端路由），这是 **SPA** 项目，GitHub Pages 需要额外处理 404 刷新问题（Cloudflare Pages 不需要）
+5. **后端依赖**: 项目使用 Lovable Cloud（Supabase），认证 + 数据库均为云端服务，不影响静态部署
+6. **Supabase 环境变量**: `.env` 文件中有 `VITE_SUPABASE_URL` 和 `VITE_SUPABASE_PUBLISHABLE_KEY`，这些在 CI 构建时必须注入，否则构建后无法连接后端
 
-### 文件二：`%userprofile%\.claude\settings.json`（这才是真正的配置文件）
+### SPA 路由刷新问题（重要）
 
-用户真实的 settings.json：
-```json
-{
-  "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "env": {
-    "ANTHROPIC_AUTH_TOKEN": "sk-...",
-    "ANTHROPIC_BASE_URL": "https://api.kimi.com/coding/",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "kimi-for-coding",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "kimi-for-coding",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "kimi-for-coding",
-    "ANTHROPIC_MODEL": "kimi-for-coding",
-    "API_TIMEOUT_MS": "3000000",
-    "CLAUDE_CODE_AUTO_APPROVE": "true",
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
-  },
-  "model": "kimi-for-coding",
-  "permissions": {
-    "allow": ["*"],
-    "deny": []
-  }
-}
-```
-
-**关键发现**：
-1. Claude Code 的 Provider（API Key、Base URL、Model）**直接写入 `settings.json` 的 `env` 字段**，而非通过 `env.sh` 环境变量！
-2. 文件包含 `$schema` 字段（JSON Schema 引用）
-3. 包含 `model` 字段（指定默认模型）
-4. 包含 `permissions` 字段
-5. **我们当前生成的 `settings.json` 只有 `mcpServers`，完全缺少 `env` / `model` / `permissions` 字段**
-6. **我们生成的 `env.sh` 是错误的方式**——用户实际上把这些环境变量放在 `settings.json["env"]` 里，不是 shell 脚本
-
-### 文件三：`%userprofile%\.codex\config.toml`（注意：是 TOML 格式，不是 YAML！）
-
-用户真实的 config.toml：
-```toml
-model = "gpt-5.3-codex"
-model_reasoning_effort = "xhigh"
-personality = "pragmatic"
-
-[mcp_servers.playwright]
-type = "stdio"
-command = "npx"
-args = ["@playwright/mcp@latest"]
-
-[mcp_servers.context7]
-type = "stdio"
-command = "npx"
-args = ["-y", "@upstash/context7-mcp@latest"]
-description = "Context7 上下文增强"
-
-[mcp_servers.chrome_devtools]
-url = "http://localhost:3000/mcp"
-...
-
-[mcp_servers.openaiDeveloperDocs]
-url = "https://developers.openai.com/mcp"
-```
-
-**关键发现**：
-1. **格式是 TOML，不是 YAML！** 当前实现生成 `config.yaml` 完全错误
-2. **文件名是 `config.toml`，不是 `config.yaml`**
-3. **MCP Servers 直接在 `config.toml` 里用 `[mcp_servers.name]` 表格格式定义，不是单独的 `mcp.json`！**
-4. HTTP 类型服务器只有 `url` 字段（无 `type` 字段），Stdio 类型有 `type`、`command`、`args`、可选 `description`
-5. 支持 `enabled_tools`、`disabled_tools`、`startup_timeout_sec`、`tool_timeout_sec`、`enabled` 字段
-6. 顶层有 `model`、`model_reasoning_effort`、`personality` 字段
+GitHub Pages 不支持客户端路由，刷新非根路径（如 `/providers`）会 404。解决方法：在 `public/` 目录添加 `404.html`，将所有请求重定向到 `index.html`。Cloudflare Pages 原生支持 SPA，不需要此处理。
 
 ---
 
-## 当前实现与真实格式偏差总结
+## 需要创建/修改的文件
 
-| 项目 | 当前实现（错误） | 真实格式（正确） |
-|------|-----------------|-----------------|
-| Claude `settings.json` 内容 | 仅 `mcpServers` | `$schema` + `env`（含 API Key/URL/Model）+ `model` + `permissions` + `mcpServers` |
-| Claude Provider 输出方式 | 生成 `env.sh` | 写入 `settings.json["env"]` |
-| Codex 文件名 | `config.yaml` | `config.toml` |
-| Codex 文件格式 | YAML | **TOML** |
-| Codex MCP 位置 | 单独 `mcp.json` | **内嵌在 `config.toml` 的 `[mcp_servers.name]` 表格中** |
-| Codex MCP 字段名 | `mcpServers` | `mcp_servers`（下划线） |
-| Claude MCP 导出路径 | 放在 `settings.json` 中 | 正确 ✓ |
+### 文件一：`vite.config.ts`（修改）
 
----
-
-## 修正方案
-
-### 修正一：Claude Code `settings.json` 重构
-
-新的 `settings.json` 必须合并 MCP 和 Provider 配置：
-
-```json
-{
-  "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "env": {
-    "ANTHROPIC_AUTH_TOKEN": "<api_key>",
-    "ANTHROPIC_BASE_URL": "<base_url>",
-    "ANTHROPIC_MODEL": "<model>",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "<model>",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "<model>",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "<model>"
-  },
-  "model": "<model-id>",
-  "permissions": {
-    "allow": ["*"],
-    "deny": []
-  },
-  "mcpServers": {
-    "server-name": {
-      "command": "npx",
-      "args": ["-y", "some-mcp"]
-    }
-  }
-}
-```
-
-逻辑：
-- 如果有启用的自定义 Provider（provider_type != "official"），填充 `env` 和 `model` 字段
-- `env` 中的 `ANTHROPIC_AUTH_TOKEN` 对应 api_key，`ANTHROPIC_BASE_URL` 对应 base_url
-- 从 Provider 的 `model_config` 提取 model 名称（如有），否则留空
-- **删除 `env.sh`** 生成逻辑（这不是 Claude 的正确配置方式）
-- MCP Servers 保留在 `mcpServers` 字段
-
-### 修正二：Codex `config.toml` 重构（TOML 格式）
-
-从 `config.yaml` 改为 `config.toml`，格式完全重写：
-
-```toml
-# CC Switch - Codex CLI 配置
-# 放置路径: ~/.codex/config.toml
-
-model = "o4-mini"
-provider = "openai"
-
-[mcp_servers.server-name]
-type = "stdio"
-command = "npx"
-args = ["-y", "some-mcp-server"]
-
-[mcp_servers.http-server]
-url = "https://example.com/mcp"
-```
-
-关键规则：
-- 顶层字段：`model`、`provider`（可选）
-- Stdio MCP：`[mcp_servers.<name>]` 下 `type = "stdio"`、`command`、`args`
-- HTTP MCP：`[mcp_servers.<name>]` 下只需 `url`（无需 type 字段）
-- **删除单独的 `mcp.json`**，MCP 内嵌在 `config.toml`
-- **删除 `config.yaml`**（格式错误）
-
-### 修正三：导出页面 UI 文件路径更新
-
-将 Codex 导出卡片中的文件列表从：
-- `config.yaml` → `~/.codex/config.yaml` ❌
-- `mcp.json` → `~/.codex/mcp.json` ❌
-
-改为：
-- `config.toml` → `~/.codex/config.toml` ✓（含 MCP Servers）
-
----
-
-## 技术实现细节
-
-### TOML 生成
-
-项目中没有安装 TOML 序列化库，需要手动拼接字符串（TOML 格式简单，手写生成函数可靠）：
+在现有配置基础上加入动态 `base`，保留 `lovable-tagger`（开发时用）、`server` 配置等：
 
 ```typescript
-function generateCodexConfigToml(providers: any[], mcps: any[]): string {
-  const lines: string[] = [
-    "# CC Switch - Codex CLI 配置",
-    "# 放置路径: ~/.codex/config.toml",
-    "",
-    'model = "o4-mini"',
-  ];
-  
-  // MCP Servers (stdio)
-  mcps.forEach((m) => {
-    lines.push("");
-    lines.push(`[mcp_servers.${m.name}]`);
-    if (m.transport_type === "stdio") {
-      lines.push(`type = "stdio"`);
-      lines.push(`command = "${m.command}"`);
-      const args = (Array.isArray(m.args) ? m.args : []).map((a: string) => `"${a}"`).join(", ");
-      lines.push(`args = [${args}]`);
-    } else {
-      lines.push(`url = "${m.url}"`);
-    }
-  });
-  
-  return lines.join("\n") + "\n";
-}
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react-swc";
+import path from "path";
+import { componentTagger } from "lovable-tagger";
+
+export default defineConfig(({ mode }) => ({
+  server: {
+    host: "::",
+    port: 8080,
+    hmr: {
+      overlay: false,
+    },
+  },
+  // 动态 base：GitHub Pages 需要 /repo-name/，Cloudflare 用 /
+  base: process.env.VITE_BASE_URL || "/",
+  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+}));
 ```
 
-### Claude settings.json 合并逻辑
+### 文件二：`public/404.html`（新建，GitHub Pages SPA 路由修复）
 
-```typescript
-function buildClaudeSettingsJson(mcps: any[], providers: any[]): object {
-  const result: any = {
-    "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  };
-  
-  const customProvider = providers.find(p => p.provider_type !== "official" && p.enabled);
-  if (customProvider) {
-    result.env = {};
-    if (customProvider.api_key) result.env["ANTHROPIC_AUTH_TOKEN"] = customProvider.api_key;
-    if (customProvider.base_url) result.env["ANTHROPIC_BASE_URL"] = customProvider.base_url;
-    // model from model_config if available
-  }
-  
-  result.permissions = { allow: ["*"], deny: [] };
-  
-  const mcpServersObj = buildMcpServersObject(mcps);
-  if (Object.keys(mcpServersObj).length > 0) {
-    result.mcpServers = mcpServersObj;
-  }
-  
-  return result;
-}
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script>
+    // GitHub Pages SPA 重定向脚本
+    var base = '/ai-helper'; // ← 与仓库名一致
+    var l = window.location;
+    var path = l.pathname.replace(base, '') || '/';
+    l.replace(base + '/?p=' + encodeURIComponent(path) + l.search + l.hash);
+  </script>
+</head>
+<body></body>
+</html>
 ```
+
+同时需要在 `index.html` 的 `<head>` 中添加一段 redirect 解析脚本（标准 GitHub Pages SPA 方案）。
+
+### 文件三：`.github/workflows/deploy-pages.yml`（新建）
+
+针对当前项目的关键修改：
+- `VITE_BASE_URL: /ai-helper/`（仓库名需用户确认）
+- 注入 Supabase 环境变量（`VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`）：这两个值作为 GitHub Secret 存入，否则构建后无法连接后端
+- Node.js 20 + `npm ci`
+
+```yaml
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Build
+        run: npm run build
+        env:
+          VITE_BASE_URL: /ai-helper/
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      - uses: actions/configure-pages@v4
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+### 文件四：`.github/workflows/deploy-cloudflare.yml`（新建）
+
+针对当前项目的关键修改：
+- `--project-name=ai-helper`
+- 注入 Supabase 环境变量
+- `VITE_BASE_URL: /`（Cloudflare 不需要子路径）
+
+```yaml
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Build
+        run: npm run build
+        env:
+          VITE_BASE_URL: /
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      - name: Verify secrets
+        run: |
+          [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ] && echo "Missing CLOUDFLARE_API_TOKEN" && exit 1
+          [ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ] && echo "Missing CLOUDFLARE_ACCOUNT_ID" && exit 1
+          echo "Secrets OK."
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=ai-helper
+```
+
+### 文件五：`DEPLOY_GUIDE.md`（新建，替换 README 中的部署说明）
+
+完整的中文部署指南，包含所有手动步骤说明。
+
+---
+
+## 需要用户手动操作的内容
+
+以下操作**无法由代码自动完成**，将在 `DEPLOY_GUIDE.md` 中详细说明：
+
+### GitHub Pages 方案（4步）
+1. 确认 GitHub 仓库名，如不是 `ai-helper` 需修改 workflow 中 `VITE_BASE_URL`
+2. 仓库 → Settings → Secrets → 添加 `VITE_SUPABASE_URL` 和 `VITE_SUPABASE_PUBLISHABLE_KEY`（值从 Lovable Cloud 的 `.env` 文件获取）
+3. 仓库 → Settings → Pages → Source 选 `GitHub Actions`
+4. 推送代码触发部署
+
+### Cloudflare Pages 方案（6步）
+1. 获取 Cloudflare API Token（Cloudflare Dashboard → API Tokens）
+2. 获取 Cloudflare Account ID
+3. GitHub Secrets 添加 `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`
+4. 同上添加 `VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`
+5. Cloudflare Dashboard → Pages → Create project（Direct Upload）→ 项目名填 `ai-helper`
+6. 推送代码触发部署
+
+---
+
+## 技术细节
+
+### Supabase 环境变量说明
+
+这是本项目与参考老项目最大的区别。本项目连接了 Lovable Cloud 后端，构建时必须有 Supabase 的连接信息（URL 和 Key）。两个值均以 `VITE_` 开头说明是客户端可见的公开变量（anon key），放入 GitHub Secrets 主要是避免明文写在 yml 文件中被 fork 的仓库暴露。
+
+### 仓库名确认
+
+部署 URL 格式为 `https://<username>.github.io/<repo-name>/`，`VITE_BASE_URL` 必须与仓库名完全一致（含大小写）。DEPLOY_GUIDE.md 中会提示用户检查并修改。
 
 ---
 
 ## 文件变更清单
 
-| 文件 | 操作 | 核心变更 |
-|------|------|---------|
-| `src/pages/Export.tsx` | 修改 | 1) 重写 `exportClaude`：settings.json 合并 Provider env 字段，删除 env.sh；2) 重写 `exportCodex`：改为生成 TOML 格式 config.toml，删除 mcp.json；3) 更新 `appCards` 中 Codex 文件路径说明 |
-| `src/i18n/locales/zh.ts` | 修改 | 更新 Codex 路径说明文案 `config.toml` |
-| `src/i18n/locales/en.ts` | 修改 | 对应英文文案 |
-
-**无数据库变更，无新增依赖**（TOML 手动拼接字符串）
+| 文件 | 操作 | 说明 |
+|------|------|------|
+| `vite.config.ts` | 修改 | 添加 `base: process.env.VITE_BASE_URL \|\| "/"` |
+| `public/404.html` | 新建 | GitHub Pages SPA 路由修复 |
+| `index.html` | 修改 | 添加 GitHub Pages SPA redirect 解析脚本 |
+| `.github/workflows/deploy-pages.yml` | 新建 | GitHub Pages 部署工作流 |
+| `.github/workflows/deploy-cloudflare.yml` | 新建 | Cloudflare Pages 部署工作流 |
+| `DEPLOY_GUIDE.md` | 新建 | 完整中文部署指南（含所有手动步骤） |

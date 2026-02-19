@@ -245,6 +245,18 @@ Vite 在**构建阶段**将 `VITE_*` 变量静态替换到产物中，因此 CI 
 
 确认在 Cloudflare Dashboard 中已手动创建 Pages 项目（步骤 3），且名称与 `.github/workflows/deploy-cloudflare.yml` 中 `--project-name=aix-helper` 的值完全一致（区分大小写）。
 
+### Q: Cloudflare 部署失败，提示 Invalid commit message？
+
+**原因**：wrangler 会读取 git commit message 传给 Cloudflare API，当 commit message 含有中文等非 ASCII 字符时会触发此错误（`code: 8000111`）。
+
+**解决方案**：在 deploy 命令中加入 `--commit-dirty=true` 参数，让 wrangler 跳过读取 git commit message：
+
+```yaml
+command: pages deploy dist --project-name=aix-helper --commit-dirty=true
+```
+
+本项目的 `.github/workflows/deploy-cloudflare.yml` 已包含此参数。
+
 ### Q: 登录后无法访问数据？
 
 说明 Supabase 环境变量未正确注入。检查 GitHub Secrets 中是否正确添加了 `VITE_SUPABASE_URL` 和 `VITE_SUPABASE_PUBLISHABLE_KEY`，值从项目 `.env` 文件中获取。

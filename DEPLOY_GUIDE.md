@@ -184,11 +184,23 @@ Vite 在**构建阶段**将 `VITE_*` 变量静态替换到产物中，因此 CI 
 
 这是 SPA + GitHub Pages 的经典问题。排查步骤：
 
-1. **先判断仓库类型**（见步骤 1 表格）：用户级 Pages（`username.github.io`）base 为空 `''`；项目级 Pages base 为 `'/仓库名'`
-2. 确认 `public/404.html` 中的 `base` 变量与实际访问路径匹配
-3. 确认 `deploy-pages.yml` 中 `VITE_BASE_URL` 与 `404.html` 中 `base` 保持一致
+**⚠️ 踩坑记录（2026-02）**：曾错误地将本项目（项目级仓库 `aix-helper`）判断为用户级 Pages，把 base 改为 `''`，导致资产路径变成 `gradient30.github.io/assets/...`（根路径），而页面实际在 `gradient30.github.io/aix-helper/`，造成 CSS/JS 全部 404。
 
-**常见错误**：把用户级 Pages（访问地址无仓库名前缀）当项目级配置，把 `base` 设成了 `'/仓库名'`，导致重定向路径错误。
+**正确判断方式**：看控制台报错中的资产 URL。
+- 如果资产路径是 `xxx.github.io/assets/...`（无仓库名），说明 base 设置为 `/`，但实际是项目级 Pages → 需要改回 `/仓库名/`
+- 如果资产路径是 `xxx.github.io/仓库名/assets/...`（有仓库名），配置正确
+
+| 场景 | 访问地址格式 | `VITE_BASE_URL` | `404.html` 的 `base` |
+|------|------------|-----------------|----------------------|
+| **用户级 Pages**（仓库名为 `username.github.io`） | `https://username.github.io/` | `/` | `''`（空） |
+| **项目级 Pages**（普通仓库，如 `aix-helper`） | `https://username.github.io/aix-helper/` | `/aix-helper/` | `'/aix-helper'` |
+
+**本项目当前配置**：项目级（`VITE_BASE_URL=/aix-helper/`，`base='/aix-helper'`）。
+
+确认三处配置保持一致：
+1. `deploy-pages.yml` → `VITE_BASE_URL: /aix-helper/`
+2. `public/404.html` → `var base = '/aix-helper'`
+3. 浏览器访问地址确实含 `/aix-helper/` 子路径
 
 ### Q: Cloudflare 部署失败，提示 project not found？
 

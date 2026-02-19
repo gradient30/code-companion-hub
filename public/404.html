@@ -11,9 +11,9 @@
      *
      * ⚠️ 如果你的 GitHub 仓库名不是 ai-helper，需同步修改下方 base 变量。
      */
-    // 如果部署在子路径（如 /aix-helper/），将 base 改为对应仓库名（不加结尾斜杠）
-    // 如果部署在根路径（如 username.github.io），保持 base = '' 即可
-    var base = '';
+    // 项目级 Pages（仓库名 aix-helper）：base = '/aix-helper'（不加结尾斜杠）
+    // 用户级 Pages（仓库名为 username.github.io）：base = ''（空字符串）
+    var base = '/aix-helper';
     var l = window.location;
     var path = l.pathname.replace(base, '') || '/';
     l.replace(

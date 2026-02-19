@@ -199,6 +199,43 @@ Vite 在**构建阶段**将 `VITE_*` 变量静态替换到产物中，因此 CI 
 
 ---
 
+## ⚠️ 已知坑：`npm ci` 在本项目中会失败
+
+### 现象
+
+GitHub Actions 运行时报错：
+
+```
+npm error code EUSAGE
+npm error `npm ci` can only install packages when your package.json and
+npm error package-lock.json or npm-shrinkwrap.json are in sync.
+npm error Missing: @testing-library/dom@10.4.1 from lock file
+npm error Invalid: lock file's picomatch@2.3.1 does not satisfy picomatch@4.0.3
+...
+```
+
+### 原因
+
+本项目主包管理器为 **bun**（存在 `bun.lockb`），`package-lock.json` 由 npm 自动生成且版本可能与 `package.json` 不完全同步。`npm ci` 要求两者严格一致，因此会报错。
+
+### 解决方案
+
+两个 workflow 均已将安装命令改为 `npm install`（不强制锁定文件同步）：
+
+```yaml
+# ✅ 正确
+- name: Install dependencies
+  run: npm install
+
+# ❌ 不要用这个
+- name: Install dependencies
+  run: npm ci
+```
+
+> **注意**：如果未来迁移到纯 npm 项目并保持 `package-lock.json` 始终最新，可以改回 `npm ci` 以获得更严格的可复现构建。
+
+---
+
 ## 文件变更清单
 
 | 文件 | 操作 | 说明 |

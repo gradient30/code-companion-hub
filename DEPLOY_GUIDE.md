@@ -31,7 +31,7 @@
 
 ---
 
-## 方案一：GitHub Pages
+## 方案一：GitHub Pages（首先保证仓库为Public才可使用）
 
 ### 步骤 1 — 确认仓库类型（重要！）
 

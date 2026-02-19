@@ -22,10 +22,10 @@
 1. 已将本项目连接到 GitHub 仓库（Lovable → Settings → GitHub → Connect）
 2. 准备好以下两个值（来自项目根目录 `.env` 文件）：
 
-   | 变量名 | 示例值 |
-   |--------|--------|
-   | `VITE_SUPABASE_URL` | `https://cllruxedtdvkljmggnxd.supabase.co` |
-   | `VITE_SUPABASE_PUBLISHABLE_KEY` | `eyJhbGciOiJIUzI1NiIs...` |
+   | 变量名                          | 示例值                                     |
+   | ------------------------------- | ------------------------------------------ |
+   | `VITE_SUPABASE_URL`             | `https://cllruxedtdvkljmggnxd.supabase.co` |
+   | `VITE_SUPABASE_PUBLISHABLE_KEY` | `eyJhbGciOiJIUzI1NiIs...`                  |
 
    > 这两个是客户端公开变量（anon key），无需保密，但放入 GitHub Secrets 可避免明文出现在代码中。
 
@@ -37,10 +37,10 @@
 
 GitHub Pages 有**两种**部署类型，配置完全不同：
 
-| 仓库类型 | 访问地址 | `VITE_BASE_URL` | `404.html` 的 `base` |
-|----------|----------|-----------------|----------------------|
-| **用户/组织级**（仓库名为 `username.github.io`） | `https://username.github.io/` | `/` | `''`（空字符串） |
-| **项目级**（普通仓库名，如 `aix-helper`） | `https://username.github.io/aix-helper/` | `/aix-helper/` | `'/aix-helper'` |
+| 仓库类型                                         | 访问地址                                 | `VITE_BASE_URL` | `404.html` 的 `base` |
+| ------------------------------------------------ | ---------------------------------------- | --------------- | -------------------- |
+| **用户/组织级**（仓库名为 `username.github.io`） | `https://username.github.io/`            | `/`             | `''`（空字符串）     |
+| **项目级**（普通仓库名，如 `aix-helper`）        | `https://username.github.io/aix-helper/` | `/aix-helper/`  | `'/aix-helper'`      |
 
 > **如何判断**：看部署后的访问 URL。如果路径里**没有**仓库名前缀，说明是用户级 Pages，base 就是 `/`。
 
@@ -48,11 +48,13 @@ GitHub Pages 有**两种**部署类型，配置完全不同：
 如果你使用的是项目级仓库，需要修改以下两处：
 
 **文件 1**：`.github/workflows/deploy-pages.yml`
+
 ```yaml
 VITE_BASE_URL: /你的仓库名/   # ← 改为实际仓库名（含前后斜杠）
 ```
 
 **文件 2**：`public/404.html`
+
 ```javascript
 var base = '/你的仓库名';   // ← 改为实际仓库名（不加结尾斜杠）
 ```
@@ -67,9 +69,9 @@ var base = '/你的仓库名';   // ← 改为实际仓库名（不加结尾斜�
 
 依次添加以下 2 个 Secret：
 
-| Secret 名称 | 值 |
-|-------------|-----|
-| `VITE_SUPABASE_URL` | 你的 Supabase URL |
+| Secret 名称                     | 值                     |
+| ------------------------------- | ---------------------- |
+| `VITE_SUPABASE_URL`             | 你的 Supabase URL      |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | 你的 Supabase anon key |
 
 ### 步骤 3 — 开启 GitHub Pages
@@ -121,7 +123,7 @@ Cloudflare Dashboard → Workers & Pages → 创建应用 → Get Started → Ge
 → 创建项目（输入项目名）→ 上传项目（随意，后续 CI 会自动覆盖）
 ```
 
-- **Project name 必须填写**：`ai-helper`（必须与工作流中 `--project-name=ai-helper` 完全一致，区分大小写）
+- **Project name 必须填写**：`aix-helper`（必须与工作流中 `--project-name=aix-helper` 完全一致，区分大小写）
 - 上传文件随意，CI/CD 部署时会自动覆盖
 
 ### 步骤 4 — 添加 GitHub Secrets
@@ -134,12 +136,12 @@ Cloudflare Dashboard → Workers & Pages → 创建应用 → Get Started → Ge
 
 依次添加以下 4 个 Secret：
 
-| Secret 名称 | 值 | 来源 |
-|-------------|-----|------|
-| `CLOUDFLARE_API_TOKEN` | 步骤 1 获取的 Token | Cloudflare |
-| `CLOUDFLARE_ACCOUNT_ID` | 步骤 2 获取的 Account ID | Cloudflare |
-| `VITE_SUPABASE_URL` | 你的 Supabase URL | 项目 `.env` |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | 你的 Supabase anon key | 项目 `.env` |
+| Secret 名称                     | 值                       | 来源        |
+| ------------------------------- | ------------------------ | ----------- |
+| `CLOUDFLARE_API_TOKEN`          | 步骤 1 获取的 Token      | Cloudflare  |
+| `CLOUDFLARE_ACCOUNT_ID`         | 步骤 2 获取的 Account ID | Cloudflare  |
+| `VITE_SUPABASE_URL`             | 你的 Supabase URL        | 项目 `.env` |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | 你的 Supabase anon key   | 项目 `.env` |
 
 ### 步骤 5 — 触发部署
 
@@ -193,17 +195,19 @@ Vite 在**构建阶段**将 `VITE_*` 变量静态替换到产物中，因此 CI 
 **⚠️ 踩坑记录（2026-02）**：曾错误地将本项目（项目级仓库 `aix-helper`）判断为用户级 Pages，把 base 改为 `''`，导致资产路径变成 `gradient30.github.io/assets/...`（根路径），而页面实际在 `gradient30.github.io/aix-helper/`，造成 CSS/JS 全部 404。
 
 **正确判断方式**：看控制台报错中的资产 URL。
+
 - 如果资产路径是 `xxx.github.io/assets/...`（无仓库名），说明 base 设置为 `/`，但实际是项目级 Pages → 需要改回 `/仓库名/`
 - 如果资产路径是 `xxx.github.io/仓库名/assets/...`（有仓库名），配置正确
 
-| 场景 | 访问地址格式 | `VITE_BASE_URL` | `404.html` 的 `base` |
-|------|------------|-----------------|----------------------|
-| **用户级 Pages**（仓库名为 `username.github.io`） | `https://username.github.io/` | `/` | `''`（空） |
-| **项目级 Pages**（普通仓库，如 `aix-helper`） | `https://username.github.io/aix-helper/` | `/aix-helper/` | `'/aix-helper'` |
+| 场景                                              | 访问地址格式                             | `VITE_BASE_URL` | `404.html` 的 `base` |
+| ------------------------------------------------- | ---------------------------------------- | --------------- | -------------------- |
+| **用户级 Pages**（仓库名为 `username.github.io`） | `https://username.github.io/`            | `/`             | `''`（空）           |
+| **项目级 Pages**（普通仓库，如 `aix-helper`）     | `https://username.github.io/aix-helper/` | `/aix-helper/`  | `'/aix-helper'`      |
 
 **本项目当前配置**：项目级（`VITE_BASE_URL=/aix-helper/`，`base='/aix-helper'`）。
 
 确认三处配置保持一致：
+
 1. `deploy-pages.yml` → `VITE_BASE_URL: /aix-helper/`
 2. `public/404.html` → `var base = '/aix-helper'`
 3. 浏览器访问地址确实含 `/aix-helper/` 子路径
@@ -231,6 +235,7 @@ Vite 在**构建阶段**将 `VITE_*` 变量静态替换到产物中，因此 CI 
 ### Q: 如何只部署到其中一个平台？
 
 删除不需要的 workflow 文件即可：
+
 - 只用 GitHub Pages：删除 `.github/workflows/deploy-cloudflare.yml`
 - 只用 Cloudflare：删除 `.github/workflows/deploy-pages.yml`
 
@@ -275,11 +280,11 @@ npm error Invalid: lock file's picomatch@2.3.1 does not satisfy picomatch@4.0.3
 
 ## 文件变更清单
 
-| 文件 | 操作 | 说明 |
-|------|------|------|
-| `vite.config.ts` | 修改 | 添加 `base: process.env.VITE_BASE_URL \|\| "/"` |
-| `public/404.html` | 新建 | GitHub Pages SPA 路由修复（刷新不 404） |
-| `index.html` | 修改 | 添加 SPA redirect 路径还原脚本 |
-| `.github/workflows/deploy-pages.yml` | 新建 | GitHub Pages CI/CD 工作流 |
-| `.github/workflows/deploy-cloudflare.yml` | 新建 | Cloudflare Pages CI/CD 工作流 |
-| `DEPLOY_GUIDE.md` | 新建 | 本部署指南 |
+| 文件                                      | 操作 | 说明                                            |
+| ----------------------------------------- | ---- | ----------------------------------------------- |
+| `vite.config.ts`                          | 修改 | 添加 `base: process.env.VITE_BASE_URL \|\| "/"` |
+| `public/404.html`                         | 新建 | GitHub Pages SPA 路由修复（刷新不 404）         |
+| `index.html`                              | 修改 | 添加 SPA redirect 路径还原脚本                  |
+| `.github/workflows/deploy-pages.yml`      | 新建 | GitHub Pages CI/CD 工作流                       |
+| `.github/workflows/deploy-cloudflare.yml` | 新建 | Cloudflare Pages CI/CD 工作流                   |
+| `DEPLOY_GUIDE.md`                         | 新建 | 本部署指南                                      |

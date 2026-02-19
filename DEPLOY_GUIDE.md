@@ -101,14 +101,18 @@ var base = '/你的仓库名';   // ← 改为实际仓库名（不加结尾斜�
 
 ### 步骤 1 — 获取 Cloudflare API Token
 
-> ⚠️ **常见错误**：不要使用 "Edit Cloudflare Workers" 模板，该模板**不包含** Pages 权限，会导致 wrangler-action 以 exit code 1 失败！
+> ✅ **推荐做法**：直接复用已有项目（如其它 GitHub Actions 托管的 Pages 应用）中使用的 `CLOUDFLARE_API_TOKEN`，无需新建。  
+> ⚠️ 注意：如果该 Token 被多个仓库共用，修改或重置 Token 时需同步更新所有仓库的 GitHub Secret。
+
+如需新建 Token（首次配置或旧 Token 权限不足）：
 
 1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com)
 2. 右上角头像 → **My Profile** → **API Tokens** → **Create Token**
-3. 选择 **"Create Custom Token"**（自定义），添加以下权限：
+3. 选择 **"Create Custom Token"**（自定义，⚠️ 不要用 "Edit Cloudflare Workers" 模板，不含 Pages 权限），添加以下权限：
    - `Account` → `Cloudflare Pages` → `Edit`
 4. "Account Resources" 选择你的账号，其余保持默认
 5. 点击 **Continue to summary** → **Create Token**，复制 Token（**只显示一次**）
+6. 同步更新所有使用此 Token 的仓库 Secret
 
 ### 步骤 2 — 获取 Account ID
 
@@ -123,10 +127,22 @@ Cloudflare Dashboard → Workers & Pages → 创建应用 → Get Started → Ge
 → 创建项目（输入项目名）→ 上传项目（随意，后续 CI 会自动覆盖）
 ```
 
-- **Project name 必须填写**：`aix-helper`（必须与工作流中 `--project-name=aix-helper` 完全一致，区分大小写）
+- **Project name 必须填写正确**：与工作流文件中 `--project-name=` 后的值完全一致，**区分大小写**
+- 本项目当前配置为 `aix-helper`，见下方步骤 4 说明
 - 上传文件随意，CI/CD 部署时会自动覆盖
 
-### 步骤 4 — 添加 GitHub Secrets
+### 步骤 4 — 确认工作流中的项目名配置
+
+打开 `.github/workflows/deploy-cloudflare.yml`，找到以下配置行：
+
+```yaml
+command: pages deploy dist --project-name=aix-helper
+```
+
+⚠️ **此处的项目名必须与步骤 3 在 Cloudflare Dashboard 创建的项目名完全一致**。  
+如果你在 Cloudflare 创建的项目名不是 `aix-helper`，需要同步修改此处。
+
+### 步骤 5 — 添加 GitHub Secrets
 
 进入 GitHub 仓库页面：
 
@@ -143,7 +159,7 @@ Cloudflare Dashboard → Workers & Pages → 创建应用 → Get Started → Ge
 | `VITE_SUPABASE_URL`             | 你的 Supabase URL        | 项目 `.env` |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | 你的 Supabase anon key   | 项目 `.env` |
 
-### 步骤 5 — 触发部署
+### 步骤 6 — 触发部署
 
 推送代码到 `main` 或 `master` 分支，或手动触发：
 
@@ -151,10 +167,10 @@ Cloudflare Dashboard → Workers & Pages → 创建应用 → Get Started → Ge
 仓库 → Actions → Deploy to Cloudflare Pages → Run workflow
 ```
 
-### 步骤 6 — 绑定自定义域名（可选）
+### 步骤 7 — 绑定自定义域名（可选）
 
 ```
-Cloudflare Dashboard → Workers & Pages → ai-helper → Custom domains → Add custom domain
+Cloudflare Dashboard → Workers & Pages → aix-helper → Custom domains → Add custom domain
 ```
 
 ### 验收检查
@@ -221,12 +237,13 @@ Vite 在**构建阶段**将 `VITE_*` 变量静态替换到产物中，因此 CI 
 1. **Token 权限**：进入 Cloudflare → My Profile → API Tokens，检查该 Token 是否有 `Account > Cloudflare Pages > Edit` 权限
    - ❌ 使用了 "Edit Cloudflare Workers" 模板（不含 Pages 权限）
    - ✅ 使用自定义 Token，手动勾选 `Cloudflare Pages: Edit`
-2. **重新生成 Token**：如不确定，删除旧 Token，按步骤 1 重新创建，更新 GitHub Secret 中的 `CLOUDFLARE_API_TOKEN`
-3. **Pages 项目是否已创建**：确认在 Cloudflare Dashboard 中已手动创建名为 `ai-helper` 的 Pages 项目（见步骤 3）
+2. **复用已有 Token**：如有其它项目已配置可用的 `CLOUDFLARE_API_TOKEN`，直接复制过来即可，无需新建
+3. **重新生成 Token**：如不确定，删除旧 Token，按步骤 1 重新创建，更新 GitHub Secret 中的 `CLOUDFLARE_API_TOKEN`（⚠️ 同步更新所有共用此 Token 的仓库）
+4. **Pages 项目是否已创建**：确认在 Cloudflare Dashboard 中已手动创建 Pages 项目（见步骤 3），且名称与 workflow 中 `--project-name=` 值完全一致
 
 ### Q: Cloudflare 部署失败，提示 project not found？
 
-确认在 Cloudflare Dashboard 中已手动创建名为 `ai-helper` 的 Pages 项目（步骤 3），且名称与 workflow 中 `--project-name=ai-helper` 完全一致。
+确认在 Cloudflare Dashboard 中已手动创建 Pages 项目（步骤 3），且名称与 `.github/workflows/deploy-cloudflare.yml` 中 `--project-name=aix-helper` 的值完全一致（区分大小写）。
 
 ### Q: 登录后无法访问数据？
 

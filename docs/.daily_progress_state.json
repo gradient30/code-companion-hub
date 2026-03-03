@@ -5,6 +5,7 @@
     "commit-01f86227fd06a6f05326ca1bcd0afea44ed46f14",
     "commit-0351bcafe630681b5f77c0ed5cdcbd86990c1c82",
     "commit-0455baac026221b17e160c4e470a44c254896ae7",
+    "commit-05082f22cb7505c278c47d356b7be119e8f8f04c",
     "commit-0510cc22710049cb68ca8466fb4ae83a7a10abca",
     "commit-05d0eae7ef2968f65cca2567267333c81416a893",
     "commit-0761fe8217fb5b366e75bb488d6b4c59c0ab6c18",
@@ -29,16 +30,19 @@
     "commit-2a9ba8b978773a16b583151aff43e06a4eef4aa6",
     "commit-2e6f96b10f66a9647d0183497fefd5ab7568a40b",
     "commit-30b493c46c7849fa15d363592a99b411001474d1",
+    "commit-30d854744251bba7ac7ff2c216041af81fe98dcd",
     "commit-333086426c8d26875ab8cc7d11b905f38fbe145c",
     "commit-341d83af7e4b590fd3600a78ebdef7c159902f7e",
     "commit-37f2b3cb36b6a0713843d4df2d799293aa67a872",
     "commit-38d277b497def141c7281440e0c1fb6a1db8ecf0",
     "commit-3c577a9dfd49c503dc5b3521c1bf798ddbb2cb3e",
     "commit-3e81678e37ab9d084aef9e93f5252c3e3bfdb6f5",
+    "commit-3ec6197b5d1d8f2690e09bc305accf6f7106c52b",
     "commit-43acefe60b49802b8201efd62c4d03582d51528d",
     "commit-4442c824d1c01693f61a3acb5acf5efc98bdce0f",
     "commit-48dbb0cda3b6bd7b59ce60600d8c93155b38bdaa",
     "commit-52dcdc4fdbf9cd4fbea9dc5a5a079a0ad1276953",
+    "commit-530396bb8cbc75e6c34c08b93d13b2b4f2ea095a",
     "commit-530547fbba09afd73374e9b36998c850a5a1d399",
     "commit-5bacb3dcc4e063021198e6df103510331d959967",
     "commit-5d1d34d7e946a9c80f34864f658d97e47f462ede",
@@ -47,6 +51,7 @@
     "commit-5f70ac720d239b482117764ded56b94d6e21ccac",
     "commit-5fc6807e20342bd8a66baf199bcdd4eb7cf91715",
     "commit-6065f5f06c316d9135dc30465f14a0ed047424fb",
+    "commit-61b1b0b083f6d866632ffe056452151a4d418e0e",
     "commit-62fed651b67f77b71f5b917ddb6760f87dbe40fd",
     "commit-6348e89cad593ec0dd5c13d5974ffda28b04fec7",
     "commit-64127d3f99995d5b18c6a84d75bd4a44166f6e91",
@@ -74,6 +79,7 @@
     "commit-8535459feeaf0eee20c223ad52ae2e580252e2cb",
     "commit-87f081c2122bbf53e30542e984e6e9d6f2b609f2",
     "commit-887e2624aa4bec6a3349daa9214cbcb703c77bc9",
+    "commit-88d101eb2c99a9c33a9a70089024850c372d9182",
     "commit-8b9a700a4fbd554f6bc20ca3e849a2e7f42aa937",
     "commit-8f2cf3fc3689d8f8fe5e313bf6ffa4b597085e3b",
     "commit-9151a6b9a4738ce365240e490c8074fb0e854548",
@@ -124,7 +130,7 @@
     "commit-ff8578812d78b79c69ae2a36e45a0c77bfd21c2d"
   ],
   "next_sequence": {
-    "PROG": 81
+    "PROG": 87
   },
   "days": {
     "2026-02-27": {
@@ -1344,6 +1350,101 @@
       "next_steps": [],
       "meta": {
         "created_at": "2026-02-28T18:31:07+08:00"
+      }
+    },
+    "2026-03-02": {
+      "plans": [],
+      "progress_updates": [
+        {
+          "item_id": "PROG-0081",
+          "fingerprint": "ac86b3d749082bf2e627bf0e9d2dd43c4e7a3a3d",
+          "title": "fix(quality-gate): 稳定ai-tech星标顺序校验",
+          "detail": "bug | commit 30d8547",
+          "status": "done",
+          "progress": "100%",
+          "priority": "P1",
+          "owner": "gradient30",
+          "component": "scripts",
+          "due_date": "",
+          "updated_at": "2026-03-02T10:56:41+08:00",
+          "source_id": "commit-30d854744251bba7ac7ff2c216041af81fe98dcd"
+        },
+        {
+          "item_id": "PROG-0082",
+          "fingerprint": "bb751776c158028e0726fd4077768bc5dcf62905",
+          "title": "ci(deploy): 质量门禁通过后再触发Pages部署",
+          "detail": "progress | commit 05082f2",
+          "status": "done",
+          "progress": "100%",
+          "priority": "P2",
+          "owner": "gradient30",
+          "component": ".github",
+          "due_date": "",
+          "updated_at": "2026-03-02T11:50:31+08:00",
+          "source_id": "commit-05082f22cb7505c278c47d356b7be119e8f8f04c"
+        },
+        {
+          "item_id": "PROG-0083",
+          "fingerprint": "ed989bd4b26c1ccd4f45a7a621395a14102422c3",
+          "title": "feat(auth): 支持记住账号密码并可选记住时长",
+          "detail": "feature | commit 3ec6197",
+          "status": "done",
+          "progress": "100%",
+          "priority": "P2",
+          "owner": "gradient30",
+          "component": "src",
+          "due_date": "",
+          "updated_at": "2026-03-02T12:09:15+08:00",
+          "source_id": "commit-3ec6197b5d1d8f2690e09bc305accf6f7106c52b"
+        },
+        {
+          "item_id": "PROG-0084",
+          "fingerprint": "cc3c439140a6db829be04185ad0332d6b0fd5694",
+          "title": "feat(auth): 优化记住时长选择交互",
+          "detail": "feature | commit 530396b",
+          "status": "done",
+          "progress": "100%",
+          "priority": "P2",
+          "owner": "gradient30",
+          "component": "src",
+          "due_date": "",
+          "updated_at": "2026-03-02T13:13:50+08:00",
+          "source_id": "commit-530396bb8cbc75e6c34c08b93d13b2b4f2ea095a"
+        },
+        {
+          "item_id": "PROG-0085",
+          "fingerprint": "3875b0968b644cfa1fda648184a2c1379eed30ce",
+          "title": "chore(supabase): 收敛自有后端配置并完善部署文档",
+          "detail": "optimization | commit 61b1b0b",
+          "status": "done",
+          "progress": "100%",
+          "priority": "P3",
+          "owner": "gradient30",
+          "component": "src",
+          "due_date": "",
+          "updated_at": "2026-03-02T17:44:53+08:00",
+          "source_id": "commit-61b1b0b083f6d866632ffe056452151a4d418e0e"
+        },
+        {
+          "item_id": "PROG-0086",
+          "fingerprint": "aa68646972512d1753ac266c3ccf27ffd61cb71b",
+          "title": "fix(ci): 降低ai-tech波动误报并恢复部署直发",
+          "detail": "bug | commit 88d101e",
+          "status": "done",
+          "progress": "100%",
+          "priority": "P1",
+          "owner": "gradient30",
+          "component": "src",
+          "due_date": "",
+          "updated_at": "2026-03-02T18:18:04+08:00",
+          "source_id": "commit-88d101eb2c99a9c33a9a70089024850c372d9182"
+        }
+      ],
+      "blockers": [],
+      "decisions": [],
+      "next_steps": [],
+      "meta": {
+        "created_at": "2026-03-02T18:28:02+08:00"
       }
     }
   }

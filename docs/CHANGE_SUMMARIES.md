@@ -1354,3 +1354,105 @@
 
 ### 时间线
 - 2026-02-28T15:05:33+08:00 `create` optimization | commit 6fe5530 [状态:已优化, 进度:100%] (source: commit-6fe5530dbd101698789a5fae4df44b90e6479565)
+
+## BUG-0008 fix(quality-gate): 稳定ai-tech星标顺序校验
+- 类型: bug
+- 首次记录: 2026-03-02T10:56:41+08:00
+- 等级: P1
+- 状态: 已修复
+- 进度: 100%
+- 组件: scripts
+- 描述: bug | commit 30d8547
+- 影响: 无
+- 根因: 待补充
+- 处理: bug | commit 30d8547
+- 验证（测试/手工）: 待补充
+- 来源: commit-30d854744251bba7ac7ff2c216041af81fe98dcd
+
+### 时间线
+- 2026-03-02T10:56:41+08:00 `create` bug | commit 30d8547 [状态:已修复, 进度:100%] (source: commit-30d854744251bba7ac7ff2c216041af81fe98dcd)
+
+## REQ-0064 ci(deploy): 质量门禁通过后再触发Pages部署
+- 类型: requirement
+- 首次记录: 2026-03-02T11:50:31+08:00
+- 等级: P2
+- 状态: 已完成
+- 进度: 100%
+- 组件: .github
+- 描述: progress | commit 05082f2
+- 影响: 无
+- 根因: 待补充
+- 处理: progress | commit 05082f2
+- 验证（测试/手工）: 待补充
+- 来源: commit-05082f22cb7505c278c47d356b7be119e8f8f04c
+
+### 时间线
+- 2026-03-02T11:50:31+08:00 `create` progress | commit 05082f2 [状态:已完成, 进度:100%] (source: commit-05082f22cb7505c278c47d356b7be119e8f8f04c)
+
+## REQ-0065 feat(auth): 支持记住账号密码并可选记住时长
+- 类型: requirement
+- 首次记录: 2026-03-02T12:09:15+08:00
+- 等级: P2
+- 状态: 已完成
+- 进度: 100%
+- 组件: src
+- 描述: feature | commit 3ec6197
+- 影响: 无
+- 根因: 待补充
+- 处理: feature | commit 3ec6197
+- 验证（测试/手工）: 待补充
+- 来源: commit-3ec6197b5d1d8f2690e09bc305accf6f7106c52b
+
+### 时间线
+- 2026-03-02T12:09:15+08:00 `create` feature | commit 3ec6197 [状态:已完成, 进度:100%] (source: commit-3ec6197b5d1d8f2690e09bc305accf6f7106c52b)
+
+## REQ-0066 feat(auth): 优化记住时长选择交互
+- 类型: requirement
+- 首次记录: 2026-03-02T13:13:50+08:00
+- 等级: P2
+- 状态: 已完成
+- 进度: 100%
+- 组件: src
+- 描述: feature | commit 530396b
+- 影响: 无
+- 根因: 待补充
+- 处理: feature | commit 530396b
+- 验证（测试/手工）: 待补充
+- 来源: commit-530396bb8cbc75e6c34c08b93d13b2b4f2ea095a
+
+### 时间线
+- 2026-03-02T13:13:50+08:00 `create` feature | commit 530396b [状态:已完成, 进度:100%] (source: commit-530396bb8cbc75e6c34c08b93d13b2b4f2ea095a)
+
+## OPT-0005 chore(supabase): 收敛自有后端配置并完善部署文档
+- 类型: optimization
+- 首次记录: 2026-03-02T17:44:53+08:00
+- 等级: P3
+- 状态: 已优化
+- 进度: 100%
+- 组件: src
+- 描述: optimization | commit 61b1b0b
+- 影响: 无
+- 根因: 待补充
+- 处理: optimization | commit 61b1b0b
+- 验证（测试/手工）: 待补充
+- 来源: commit-61b1b0b083f6d866632ffe056452151a4d418e0e
+
+### 时间线
+- 2026-03-02T17:44:53+08:00 `create` optimization | commit 61b1b0b [状态:已优化, 进度:100%] (source: commit-61b1b0b083f6d866632ffe056452151a4d418e0e)
+
+## BUG-0009 fix(ci): 降低ai-tech波动误报并恢复部署直发
+- 类型: bug
+- 首次记录: 2026-03-02T18:18:04+08:00
+- 等级: P1
+- 状态: 已修复
+- 进度: 100%
+- 组件: src
+- 描述: bug | commit 88d101e
+- 影响: 无
+- 根因: 待补充
+- 处理: bug | commit 88d101e
+- 验证（测试/手工）: 待补充
+- 来源: commit-88d101eb2c99a9c33a9a70089024850c372d9182
+
+### 时间线
+- 2026-03-02T18:18:04+08:00 `create` bug | commit 88d101e [状态:已修复, 进度:100%] (source: commit-88d101eb2c99a9c33a9a70089024850c372d9182)

@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "next_ids": {
-    "BUG": 8,
-    "REQ": 64,
-    "OPT": 5
+    "BUG": 10,
+    "REQ": 67,
+    "OPT": 6
   },
   "by_fingerprint": {
     "5b43b48399c887d2dd739752fafd23eb4ec33d04": {
@@ -449,6 +449,42 @@
       "event_type": "optimization",
       "title": "chore(sync): 优化 tcloud 同步脚本并升级版本号",
       "component": "git-sync-to-tcloud.sh"
+    },
+    "8b16d2e2598426c8117f05460996b8bce1e61730": {
+      "entry_id": "BUG-0008",
+      "event_type": "bug",
+      "title": "fix(quality-gate): 稳定ai-tech星标顺序校验",
+      "component": "scripts"
+    },
+    "45669e4b50e906365837c004bf663fe0809e2abd": {
+      "entry_id": "REQ-0064",
+      "event_type": "requirement",
+      "title": "ci(deploy): 质量门禁通过后再触发Pages部署",
+      "component": ".github"
+    },
+    "e91f27d2cd6197bedefb6bc4d2106b763b18a7e9": {
+      "entry_id": "REQ-0065",
+      "event_type": "requirement",
+      "title": "feat(auth): 支持记住账号密码并可选记住时长",
+      "component": "src"
+    },
+    "e79fdf3b6e1727721091007ca3cbe5a4d5eccb00": {
+      "entry_id": "REQ-0066",
+      "event_type": "requirement",
+      "title": "feat(auth): 优化记住时长选择交互",
+      "component": "src"
+    },
+    "3d01bbcee938dc655240fdb89d49efb9a00421f2": {
+      "entry_id": "OPT-0005",
+      "event_type": "optimization",
+      "title": "chore(supabase): 收敛自有后端配置并完善部署文档",
+      "component": "src"
+    },
+    "7932b6e0b011f914fb4b7e8a62f909198550c0ba": {
+      "entry_id": "BUG-0009",
+      "event_type": "bug",
+      "title": "fix(ci): 降低ai-tech波动误报并恢复部署直发",
+      "component": "src"
     }
   },
   "processed_source_ids": {
@@ -572,6 +608,12 @@
     "commit-3c577a9dfd49c503dc5b3521c1bf798ddbb2cb3e": "2026-02-28T13:25:13+08:00",
     "commit-7fed3ee0f37a008c48a9f9cfe7bb62a32f0cce12": "2026-02-28T14:07:27+08:00",
     "commit-bfbc22599848b0ab5ec6a4dc033e97ca030a8e4e": "2026-02-28T15:02:38+08:00",
-    "commit-6fe5530dbd101698789a5fae4df44b90e6479565": "2026-02-28T15:05:33+08:00"
+    "commit-6fe5530dbd101698789a5fae4df44b90e6479565": "2026-02-28T15:05:33+08:00",
+    "commit-30d854744251bba7ac7ff2c216041af81fe98dcd": "2026-03-02T10:56:41+08:00",
+    "commit-05082f22cb7505c278c47d356b7be119e8f8f04c": "2026-03-02T11:50:31+08:00",
+    "commit-3ec6197b5d1d8f2690e09bc305accf6f7106c52b": "2026-03-02T12:09:15+08:00",
+    "commit-530396bb8cbc75e6c34c08b93d13b2b4f2ea095a": "2026-03-02T13:13:50+08:00",
+    "commit-61b1b0b083f6d866632ffe056452151a4d418e0e": "2026-03-02T17:44:53+08:00",
+    "commit-88d101eb2c99a9c33a9a70089024850c372d9182": "2026-03-02T18:18:04+08:00"
   }
 }

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { buildCliCommandEntityKey, buildGuideEntityKey } from "@/features/docs-refresh/entity-keys";
 import { diffCatalogItems } from "@/features/docs-refresh/diff";
 import { mergeOverrides } from "@/features/docs-refresh/merge";
+import type { DocRefreshOverride } from "@/features/docs-refresh/types";
 
 describe("doc refresh diff utilities", () => {
   it("builds stable entity keys", () => {
@@ -100,8 +101,8 @@ describe("doc refresh diff utilities", () => {
       { entityKey: "three" },
     ];
 
-    const overrides = [
-      { entityKey: "two", overrideType: "delete", payload: null },
+    const overrides: DocRefreshOverride<{ entityKey: string }>[] = [
+      { entityKey: "two", overrideType: "delete" },
       { entityKey: "three", overrideType: "upsert", payload: { entityKey: "three" } },
       { entityKey: "four", overrideType: "upsert", payload: { entityKey: "four" } },
     ];

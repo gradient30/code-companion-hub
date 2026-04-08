@@ -93,7 +93,6 @@ export function diffCatalogItems<T extends DocRefreshBaseEntity>(input: {
 }): DocRefreshDiffResult<T> {
   const threshold = input.similarityThreshold ?? 0.45;
   const baselineByKey = new Map(input.baseline.map((item) => [getEntityKey(item), item] as const));
-  const candidateByKey = new Map(input.candidate.map((item) => [getEntityKey(item), item] as const));
 
   const modified: DocRefreshDiffPair<T>[] = [];
   const added: T[] = [];

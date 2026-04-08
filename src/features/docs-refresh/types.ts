@@ -31,8 +31,18 @@ export type DocRefreshDiffResult<T extends DocRefreshBaseEntity> = {
   similar: DocRefreshDiffPair<T>[];
 };
 
-export type DocRefreshOverride<TPayload = unknown> = {
+export type DocRefreshUpsertOverride<TPayload extends { entityKey: string } = { entityKey: string }> = {
   entityKey: string;
-  overrideType: DocRefreshOverrideType;
+  overrideType: "upsert";
   payload: TPayload;
 };
+
+export type DocRefreshDeleteOverride = {
+  entityKey: string;
+  overrideType: "delete";
+  payload?: never;
+};
+
+export type DocRefreshOverride<TPayload extends { entityKey: string } = { entityKey: string }> =
+  | DocRefreshUpsertOverride<TPayload>
+  | DocRefreshDeleteOverride;

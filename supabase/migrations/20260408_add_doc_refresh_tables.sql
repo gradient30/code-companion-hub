@@ -197,7 +197,6 @@ CREATE POLICY "Users can delete own doc_refresh_diff_items"
 -- Published overrides that become the effective catalog layer
 CREATE TABLE public.doc_catalog_overrides (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   scope TEXT NOT NULL,
   vendor_id TEXT NOT NULL,
   entity_key TEXT NOT NULL,
@@ -207,7 +206,7 @@ CREATE TABLE public.doc_catalog_overrides (
   applied_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (user_id, scope, vendor_id, entity_key)
+  UNIQUE (scope, vendor_id, entity_key)
 );
 
 ALTER TABLE public.doc_catalog_overrides ENABLE ROW LEVEL SECURITY;
@@ -217,29 +216,29 @@ BEFORE UPDATE ON public.doc_catalog_overrides
 FOR EACH ROW
 EXECUTE FUNCTION public.update_updated_at_column();
 
-CREATE INDEX idx_doc_catalog_overrides_user_scope
-  ON public.doc_catalog_overrides (user_id, scope, vendor_id);
+CREATE INDEX idx_doc_catalog_overrides_scope_vendor
+  ON public.doc_catalog_overrides (scope, vendor_id, entity_key);
 
-CREATE POLICY "Users can view own doc_catalog_overrides"
+CREATE POLICY "Authenticated users can view doc_catalog_overrides"
   ON public.doc_catalog_overrides
   FOR SELECT
   TO authenticated
-  USING (public.is_owner(user_id));
+  USING (true);
 
-CREATE POLICY "Users can insert own doc_catalog_overrides"
+CREATE POLICY "Admins can insert doc_catalog_overrides"
   ON public.doc_catalog_overrides
   FOR INSERT
   TO authenticated
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
-CREATE POLICY "Users can update own doc_catalog_overrides"
+CREATE POLICY "Admins can update doc_catalog_overrides"
   ON public.doc_catalog_overrides
   FOR UPDATE
   TO authenticated
-  USING (public.is_owner(user_id));
+  USING (public.has_role(auth.uid(), 'admin'));
 
-CREATE POLICY "Users can delete own doc_catalog_overrides"
+CREATE POLICY "Admins can delete doc_catalog_overrides"
   ON public.doc_catalog_overrides
   FOR DELETE
   TO authenticated
-  USING (public.is_owner(user_id));
+  USING (public.has_role(auth.uid(), 'admin'));

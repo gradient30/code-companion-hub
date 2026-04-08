@@ -135,7 +135,6 @@ export type Database = {
           scope: string
           source_run_id: string | null
           updated_at: string
-          user_id: string
           vendor_id: string
         }
         Insert: {
@@ -148,7 +147,6 @@ export type Database = {
           scope: string
           source_run_id?: string | null
           updated_at?: string
-          user_id: string
           vendor_id: string
         }
         Update: {
@@ -161,7 +159,6 @@ export type Database = {
           scope?: string
           source_run_id?: string | null
           updated_at?: string
-          user_id?: string
           vendor_id?: string
         }
         Relationships: [

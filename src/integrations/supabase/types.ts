@@ -124,6 +124,246 @@ export type Database = {
         }
         Relationships: []
       }
+      doc_catalog_overrides: {
+        Row: {
+          applied_by: string | null
+          created_at: string
+          entity_key: string
+          id: string
+          override_type: string
+          payload: Json
+          scope: string
+          source_run_id: string | null
+          updated_at: string
+          user_id: string
+          vendor_id: string
+        }
+        Insert: {
+          applied_by?: string | null
+          created_at?: string
+          entity_key: string
+          id?: string
+          override_type: string
+          payload?: Json
+          scope: string
+          source_run_id?: string | null
+          updated_at?: string
+          user_id: string
+          vendor_id: string
+        }
+        Update: {
+          applied_by?: string | null
+          created_at?: string
+          entity_key?: string
+          id?: string
+          override_type?: string
+          payload?: Json
+          scope?: string
+          source_run_id?: string | null
+          updated_at?: string
+          user_id?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doc_catalog_overrides_source_run_id_fkey"
+            columns: ["source_run_id"]
+            isOneToOne: false
+            referencedRelation: "doc_refresh_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      doc_refresh_diff_items: {
+        Row: {
+          baseline_payload: Json
+          candidate_payload: Json
+          created_at: string
+          diff_kind: string
+          entity_key: string
+          id: string
+          review_action: string
+          review_status: string
+          resolved_at: string | null
+          run_id: string
+          similar_candidates: Json
+          similarity_score: number | null
+          scope: string
+          updated_at: string
+          user_id: string
+          vendor_id: string
+        }
+        Insert: {
+          baseline_payload?: Json
+          candidate_payload?: Json
+          created_at?: string
+          diff_kind: string
+          entity_key: string
+          id?: string
+          review_action?: string
+          review_status?: string
+          resolved_at?: string | null
+          run_id: string
+          similar_candidates?: Json
+          similarity_score?: number | null
+          scope: string
+          updated_at?: string
+          user_id: string
+          vendor_id: string
+        }
+        Update: {
+          baseline_payload?: Json
+          candidate_payload?: Json
+          created_at?: string
+          diff_kind?: string
+          entity_key?: string
+          id?: string
+          review_action?: string
+          review_status?: string
+          resolved_at?: string | null
+          run_id?: string
+          similar_candidates?: Json
+          similarity_score?: number | null
+          scope?: string
+          updated_at?: string
+          user_id?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doc_refresh_diff_items_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "doc_refresh_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      doc_refresh_runs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          finished_at: string | null
+          id: string
+          page_route: string
+          scope: string
+          source_mode: string
+          started_at: string
+          status: string
+          summary_counts: Json
+          updated_at: string
+          user_id: string
+          vendor_ids: Json
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          page_route: string
+          scope: string
+          source_mode?: string
+          started_at?: string
+          status?: string
+          summary_counts?: Json
+          updated_at?: string
+          user_id: string
+          vendor_ids?: Json
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          page_route?: string
+          scope?: string
+          source_mode?: string
+          started_at?: string
+          status?: string
+          summary_counts?: Json
+          updated_at?: string
+          user_id?: string
+          vendor_ids?: Json
+        }
+        Relationships: []
+      }
+      doc_refresh_snapshots: {
+        Row: {
+          content_hash: string
+          created_at: string
+          id: string
+          normalized_payload: Json
+          raw_markdown: string
+          run_id: string
+          scope: string
+          source_url: string
+          user_id: string
+          vendor_id: string
+        }
+        Insert: {
+          content_hash: string
+          created_at?: string
+          id?: string
+          normalized_payload?: Json
+          raw_markdown: string
+          run_id: string
+          scope: string
+          source_url: string
+          user_id: string
+          vendor_id: string
+        }
+        Update: {
+          content_hash?: string
+          created_at?: string
+          id?: string
+          normalized_payload?: Json
+          raw_markdown?: string
+          run_id?: string
+          scope?: string
+          source_url?: string
+          user_id?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doc_refresh_snapshots_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "doc_refresh_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      doc_refresh_user_settings: {
+        Row: {
+          created_at: string
+          firecrawl_key_ciphertext: string | null
+          firecrawl_key_mask: string | null
+          firecrawl_last_verified_at: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          firecrawl_key_ciphertext?: string | null
+          firecrawl_key_mask?: string | null
+          firecrawl_last_verified_at?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          firecrawl_key_ciphertext?: string | null
+          firecrawl_key_mask?: string | null
+          firecrawl_last_verified_at?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mcp_servers: {
         Row: {
           app_bindings: Json | null

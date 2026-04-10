@@ -1,22 +1,19 @@
 name: Deploy to Cloudflare Pages
 
 on:
-  workflow_run:
-    workflows: ["Quality Gate"]
-    types: [completed]
+  push:
     branches: [main, master]
   workflow_dispatch:
 
 jobs:
   deploy:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       deployments: write
     env:
-      TARGET_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
-      TARGET_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+      TARGET_SHA: ${{ github.sha }}
+      TARGET_BRANCH: ${{ github.ref_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

@@ -1,9 +1,7 @@
 name: Deploy to GitHub Pages
 
 on:
-  workflow_run:
-    workflows: ["Quality Gate"]
-    types: [completed]
+  push:
     branches: [main, master]
   workflow_dispatch:
 
@@ -18,10 +16,9 @@ concurrency:
 
 jobs:
   build:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     env:
-      TARGET_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+      TARGET_SHA: ${{ github.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
